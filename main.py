@@ -39,7 +39,7 @@ def main():
     g = y2[0]
 
     
-    #creat cohernce matrix between F01 AND F21
+    #creat cohernce matrix between F01 AND F21.
     f, Cxy = scipy.signal.coherence(f, g, fs=512, nperseg=1024)
     plt.semilogy(f, Cxy)
     plt.xlabel('frequency [Hz]')
