@@ -26,6 +26,7 @@ def main():
     test = bidsExtract(bids_root)
     raw = test.get_raw()
     #raw.plot() # plot the raw data
+    #plt.show()
     #print(raw.info)
     raw_selection = raw["F01", 0:]
     x1=raw_selection[1]
@@ -35,21 +36,29 @@ def main():
     x2=raw_selection[1]
     y2=raw_selection[0].T
     
-    f = y1[0]
-    g = y2[0]
+    #plot the data
+    plt.plot(x1, y1)
+    plt.xlabel('time [s]')
+    plt.ylabel('signal')
+    #plt.show()
+    plt.plot(x2, y2)
+    plt.xlabel('time [s]')
+    plt.ylabel('signal')
+    plt.show()
+    #f = y1[0]
+    #g = y2[0]
 
     
-    #creat cohernce matrix between F01 AND F21.
-    f, Cxy = scipy.signal.coherence(f, g, fs=512, nperseg=1024)
-    plt.semilogy(f, Cxy)
-    plt.xlabel('frequency [Hz]')
-    plt.ylabel('Coherence')
-    plt.show()
+   
+    
+    #calculate the cohernce between F01 AND F21.
     
     
     
     
     
-if __name__ == '__main__':
+    
+    
+if __name__ == '__main__': # if we're running file directly and not importing it
     main()
 
