@@ -1,16 +1,32 @@
-# This is a sample Python script.
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import numpy as np
+import pandas as pd
+import os
+import os.path as op
+import matplotlib.pyplot as plt
+import openneuro
+from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
+import scipy
+from mne.datasets import sample
+import seaborn as sns
+import mne
+from bids_extract import bidsExtract
+
+bids_path = r"C:\Users\eyala\Documents\GitHub\brainProj\ds003688"
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def main():
+    dataset = "ds003688"
+    subject = "02"
 
+    # Download one subject's data from each dataset
+    bids_root = op.join(op.dirname(sample.data_path()), dataset)
+    if not op.isdir(bids_root):
+        os.makedirs(bids_root)
 
-# Press the green button in the gutter to run the script.
+    openneuro.download(dataset=dataset, target_dir=bids_root, include=[f"sub-{subject}"])
+
+    print_dir_tree(bids_root, max_depth=4)
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    main()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
