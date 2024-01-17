@@ -1,3 +1,5 @@
+# this class is used to extract the raw data from the bids dataset
+
 import mne_bids
 import numpy as np
 import pandas as pd
@@ -10,8 +12,10 @@ import scipy
 import seaborn as sns
 import mne
 
-session = 'iemu'
-datatype = 'ieeg'
+# define the parameters for the raw data extraction
+
+session = 'iemu' 
+datatype = 'ieeg' 
 acquisition = 'clinical'
 suffix = 'ieeg'
 task_f = 'film'
@@ -20,7 +24,7 @@ sub = '02'
 run = '1'
 exten = '.vhdr'
 
-
+# extract the raw data from the bids dataset
 def extract(bids_root):
     bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task_f, run=run,
                          datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
@@ -29,7 +33,7 @@ def extract(bids_root):
 
 
 
-
+# this class is used to extract the raw data from the bids dataset
 class bidsExtract:
     def __init__(self, bids_root):
         self.bids_root = bids_root
