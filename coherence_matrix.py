@@ -1,4 +1,3 @@
-
 import mne_bids
 import numpy as np
 import pandas as pd
@@ -19,8 +18,6 @@ run = '1'
 exten = '.vhdr'
 
 
-
-
 def split_signal(signal, duration=1):
     x1, y1 = signal
     sample_rate = 1 / (x1[1] - x1[0])  # Assuming uniform sampling rate
@@ -33,13 +30,12 @@ def split_signal(signal, duration=1):
 
     # Split the signal into sub-signals
     subsignals = [
-        (x1[i*samples_per_subsignal:(i+1)*samples_per_subsignal],
-         y1[i*samples_per_subsignal:(i+1)*samples_per_subsignal])
+        (x1[i * samples_per_subsignal:(i + 1) * samples_per_subsignal],
+         y1[i * samples_per_subsignal:(i + 1) * samples_per_subsignal])
         for i in range(num_full_subsignals)
     ]
 
     return subsignals
-
 
 
 def get_raw(bids_root, sub, task):
@@ -48,40 +44,44 @@ def get_raw(bids_root, sub, task):
     return mne_bids.read_raw_bids(bids_path)
 
 
-
 def get_channels(raw):
     all_channels = tuple(zip(raw.ch_names, raw.get_channel_types()))
     channels = [x[0] for x in all_channels if x[1] == "ecog"]
     if len(channels) == 0:
         return []
-    bad_channels = raw.info["bads"]
+    bad_channels = raw.info['bads']
+    print(bad_channels)
     for i in bad_channels:
-        if i in channels: channels.remove(i)
+        if i in channels:
+            channels.remove(i)
+    print(channels)
     return channels
 
 
-def coherence_calc(y1,y2,fs):
-    f, Cxy = scipy.signal.coherence(y1, y2, fs=512,) #
-    return Cxy
+def coherence_calc(signal_1, signal_2, freq):
+    f, coherence = scipy.signal.coherence(signal_1, signal_2, fs=freq)  #
+    return np.mean(coherence)
 
 
-#creating coherence matrix between each channel ( for each second)
-def create_matrix(sec,freq,channels,raw):
+# creating coherence matrix between each channel ( for each second)
+def create_matrix(sec, freq, channels, raw):
+    matrix = np.empty((len(channels), len(channels)))
     signals = []
     for i in channels:
-        signals.append(raw[i, sec*freq:(sec+1)*freq])
-        
-
-
-
-
-
+        signals.append(raw[i, sec * freq:(sec + 1) * freq][0])
+    lenz = len(signals)
+    for i in range(lenz):
+        for j in range(i, lenz):
+            matrix[i][j] = coherence_calc(signals[i], signals[j], freq)
+            matrix[j][i] = matrix[i][j]
+    return matrix
 
 
 def create_matrix_list(sub, task, bids_root):
     bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
                          datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
     raw = mne_bids.read_raw_bids(bids_path, verbose=None)
+    raw.info['bads'].append("F26")
     channels = get_channels(raw)
     if len(channels) == 0:
         return None
@@ -89,16 +89,20 @@ def create_matrix_list(sub, task, bids_root):
     x, time = raw[channels[0], :]
     time = int(time[-1])
     time = int(time / 1)
-    matrixs = []
+    matrix_list = []
     for i in range(time):
-        create_matrix(i,sample_rate,channels,raw)
-    return matrixs
-
-
-
+        print("this is the sec num: " + str(i))
+        if i == 5:
+            break
+        matrix_list.append(create_matrix(i, sample_rate, channels, raw))
+    return matrix_list
 
 
 class CoherenceMatrix:
     def __init__(self, sub_tag, task, bids_root):
-        self.matrix_list = create_matrix_list(sub_tag, task)
+        self.matrix_list = create_matrix_list(sub_tag, task ,bids_root)
 
+    def show_matrix(self, index):
+        plt.imshow(self.matrix_list[index], cmap='viridis')
+        plt.colorbar()
+        plt.show()
