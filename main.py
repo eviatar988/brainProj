@@ -26,8 +26,9 @@ def main():
     raw = test.get_raw()
     all_channels = tuple(zip(raw.ch_names, raw.get_channel_types()))
     channels = [x[0] for x in all_channels if x[1] == "ecog"]
-    print(raw.info["sfreq"])
-    time = raw.info["mri_id"]
+    x,time = raw[channels[0], :]
+    time = time[-1]
+    time = int(time)/1
     sample_rate = raw.info["sfreq"]
     print(time)
 

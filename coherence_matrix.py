@@ -60,24 +60,39 @@ def get_channels(raw):
     return channels
 
 
-def create_matrix(sub, task, bids_root):
+
+def create_matrix(sec,freq,channels,raw):
+    signals = []
+    for i in channels:
+        signals.append(raw[i, sec*freq:(sec+1)*freq])
+
+
+
+
+
+
+
+def create_matrix_list(sub, task, bids_root):
     bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
                          datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
     raw = mne_bids.read_raw_bids(bids_path, verbose=None)
     channels = get_channels(raw)
     if len(channels) == 0:
         return None
-    time = raw[channels[0],-1]
     sample_rate = raw.info["sfreq"]
-    time = (time-time%1)
-    raw.info()
-    for i in time
-        raw[i,]
-    matrix = []
+    x, time = raw[channels[0], :]
+    time = int(time[-1])
+    time = int(time / 1)
+    matrixs = []
+    for i in range(time):
+        create_matrix(i,sample_rate,channels,raw)
+    return matrixs
+
+
 
 
 
 class CoherenceMatrix:
     def __init__(self, sub_tag, task, bids_root):
-        self.matrix = create_matrix(sub_tag, task)
+        self.matrix_list = create_matrix_list(sub_tag, task)
 
