@@ -81,7 +81,6 @@ def create_matrix_list(sub, task, bids_root):
     bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
                          datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
     raw = mne_bids.read_raw_bids(bids_path, verbose=None)
-    raw.info['bads'].append("F26")
     channels = get_channels(raw)
     if len(channels) == 0:
         return None

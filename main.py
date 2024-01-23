@@ -24,7 +24,8 @@ def main():
     # Download one subject's data from each dataset
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
     print(bids_root)
-    gerbil = CoherenceMatrix("2", 'rest', bids_root)
+
+    gerbil = CoherenceMatrix("02", 'rest', bids_root)
 
     gerbil.show_matrix(0)
 
