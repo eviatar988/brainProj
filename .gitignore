@@ -7,3 +7,5 @@ mne_data.lnk
 .idea/misc.xml
 .idea/other.xml
 __pycache__/bids_extract.cpython-39.pyc
+
+readme.txt
