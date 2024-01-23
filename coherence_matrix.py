@@ -49,17 +49,27 @@ def get_raw(bids_root, sub, task):
 
 
 
+def get_channels(raw):
+    all_channels = tuple(zip(raw.ch_names, raw.get_channel_types()))
+    channels = [x[0] for x in all_channels if x[1] == "ecog"]
+    if len(channels) == 0:
+        return []
+    bad_channels = raw.info["bads"]
+    for i in bad_channels:
+        if i in channels: channels.remove(i)
+    return channels
 
 
 def create_matrix(sub, task, bids_root):
     bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
                          datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
     raw = mne_bids.read_raw_bids(bids_path, verbose=None)
-    all_channels = tuple(zip(raw.ch_names, raw.get_channel_types()))
-    channels = [x[0] for x in all_channels if x[1] == "ecog"]
+    channels = get_channels(raw)
     if len(channels) == 0:
         return None
     time = raw[channels[0],-1]
+    sample_rate = raw.info["sfreq"]
+    time = (time-time%1)
     raw.info()
     for i in time
         raw[i,]
