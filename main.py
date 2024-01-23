@@ -15,38 +15,20 @@ from bids_extract import bidsExtract
 
 bids_path = r"C:\Users\eyala\Documents\GitHub\brainProj\ds003688"
 dataset = "ds003688"
-subject = "02"
+subject = "07"
 
 def main():
  
 
     # Download one subject's data from each dataset
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    print(bids_root)
     test = bidsExtract(bids_root)
     raw = test.get_raw()
-    #raw.plot() # plot the raw data
-    #plt.show()
-    #print(raw.info)
-    raw_selection = raw["F01", 0:]
-    x1=raw_selection[1]
-    y1=raw_selection[0].T
-    
-    raw_selection = raw["F21", 0:]
-    x2=raw_selection[1]
-    y2=raw_selection[0].T
-    
-    #plot the data
-    plt.plot(x1, y1)
-    plt.xlabel('time [s]')
-    plt.ylabel('signal')
-    #plt.show()
-    plt.plot(x2, y2)
-    plt.xlabel('time [s]')
-    plt.ylabel('signal')
-    plt.show()
-    #f = y1[0]
-    #g = y2[0]
+    all_channels = tuple(zip(raw.ch_names, raw.get_channel_types()))
+    channels = [x[0] for x in all_channels if x[1] == "ecog"]
+    y1, x1 = raw["T01", 0:]
+    print(x1[-1])
+
 
     
    

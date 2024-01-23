@@ -20,7 +20,7 @@ acquisition = 'clinical'
 suffix = 'ieeg'
 task_f = 'film'
 task_r = 'rest'
-sub = '02'
+sub = '05'
 run = '1'
 exten = '.vhdr'
 
