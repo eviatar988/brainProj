@@ -60,10 +60,22 @@ def get_channels(raw):
     return channels
 
 
+def coherence_calc(y1,y2,fs):
+    f, Cxy = scipy.signal.coherence(y1, y2, fs=512,) #
+    return Cxy
+
+
+#creating coherence matrix between each channel ( for each second)
 def create_matrix(sec,freq,channels,raw):
     signals = []
     for i in channels:
-        signals.append(raw[i, sec*freq:(sec+1)*freq][0])
+        signals.append(raw[i, sec*freq:(sec+1)*freq])
+        
+
+
+
+
+
 
 
 def create_matrix_list(sub, task, bids_root):
