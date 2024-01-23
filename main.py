@@ -25,9 +25,9 @@ def main():
     print(bids_root)
     test = bidsExtract(bids_root)
     raw = test.get_raw()
-    #raw.plot() # plot the raw data
-    #plt.show()
-    #print(raw.info)
+    raw.plot() # plot the raw data
+    plt.show()
+    print(raw.info)
     raw_selection = raw["F01", 0:]
     x1=raw_selection[1]
     y1=raw_selection[0].T
@@ -44,7 +44,7 @@ def main():
     plt.plot(x2, y2)
     plt.xlabel('time [s]')
     plt.ylabel('signal')
-    plt.show()
+    #plt.show()
     #f = y1[0]
     #g = y2[0]
 
