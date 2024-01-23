@@ -60,16 +60,10 @@ def get_channels(raw):
     return channels
 
 
-
 def create_matrix(sec,freq,channels,raw):
     signals = []
     for i in channels:
-        signals.append(raw[i, sec*freq:(sec+1)*freq])
-
-
-
-
-
+        signals.append(raw[i, sec*freq:(sec+1)*freq][0])
 
 
 def create_matrix_list(sub, task, bids_root):
