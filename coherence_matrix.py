@@ -59,7 +59,7 @@ def get_channels(raw):
 
 
 def coherence_calc(signal_1, signal_2, freq):
-    f, coherence = scipy.signal.coherence(signal_1, signal_2, fs=freq)  #
+    f, coherence = scipy.signal.coherence(signal_1, signal_2, fs=freq, nperseg=freq/2)
     return np.mean(coherence)
 
 
@@ -77,9 +77,8 @@ def create_matrix(sec, freq, channels, raw):
     return matrix
 
 
-def create_matrix_list(sub, task, bids_root):
-    bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
-                         datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+def create_matrix_list(sub, task, bids_path):
+   
     raw = mne_bids.read_raw_bids(bids_path, verbose=None)
     channels = get_channels(raw)
     if len(channels) == 0:
@@ -99,8 +98,24 @@ def create_matrix_list(sub, task, bids_root):
 
 class CoherenceMatrix:
     def __init__(self, sub_tag, task, bids_root):
-        self.matrix_list = create_matrix_list(sub_tag, task ,bids_root)
+        self.tag = sub_tag
+        self.task = task
+        self.bids_root = bids_root
+        bids_path = BIDSPath(root=bids_root, subject=sub_tag, session=session, task=task, run=run,
+                                  datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+        self.matrix_list = create_matrix_list(sub_tag, task ,bids_path)
 
+    def get_root(self):
+        return self.bids_root
+    
+    def get_tag(self):
+        return self.tag
+    
+    
+    def get_task(self):
+        return self.task
+    
+    
     def show_matrix(self, index):
         plt.imshow(self.matrix_list[index], cmap='viridis')
         plt.colorbar()
