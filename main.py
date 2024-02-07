@@ -24,7 +24,6 @@ datatype = 'ieeg'
 acquisition = 'clinical'
 suffix = 'ieeg'
 run = '1'
-exten = '.vhdr'
 
 
 
@@ -37,17 +36,14 @@ def main():
     print(bids_root)
 
     path = BIDSPath(root=bids_root, subject="10", session=session, task='rest', run=run,
-                    datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+                    datatype=datatype, acquisition=acquisition, suffix=suffix)
     raw = read_raw_bids(path, verbose=None)
-    
     raw.load_data()
-    raw.notch_filter(np.arange(50, 253, 50))
+    raw.set_eeg_reference()
+    raw.notch_filter(np.arange(50,251,50))
     raw.compute_psd().plot()
-    
-   # signal,x = raw['F18',0:]
-   # f, Pxx_den = scipy.signal.welch(signal[0], fs=2048, nperseg=1024)
-   # plt.semilogy(f, Pxx_den)
-    plt.show()
+    psd_try = raw.compute_psd()
+    signal,time = psd_try.get
     
    
     #calculate the cohernce between F01 AND F21.

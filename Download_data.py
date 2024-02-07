@@ -12,11 +12,11 @@ import mne
 from bids_extract import bidsExtract
 
 dataset = "ds003688"
-
+subject = '10'
 
 # Download one subject's data from each dataset
 bids_root = op.join(op.dirname(sample.data_path()), dataset)
 if not op.isdir(bids_root):
     os.makedirs(bids_root)
 
-openneuro.download(dataset=dataset, target_dir=bids_root)
+openneuro.download(dataset=dataset, target_dir=bids_root, include=[f"sub-{subject}"])
