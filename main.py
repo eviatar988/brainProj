@@ -15,6 +15,7 @@ import seaborn as sns
 import mne
 from bids_extract import bidsExtract
 from coherence_matrix import CoherenceMatrix
+from patients_matrix import PatientsMatrix
 
 bids_path = r"C:\Users\eyala\Documents\GitHub\brainProj\ds003688"
 dataset = "ds003688"
@@ -32,12 +33,13 @@ def main():
 
     # Download one subject's data from each dataset
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    print(bids_root)
+    #print(bids_root)
     sub = '10'
     task = 'film'
-    coheren = CoherenceMatrix(bids_root, '02', 'film')
-    coheren.show_matrix(0)
-   
+    #coheren = CoherenceMatrix(bids_root, '02', 'film')
+    #coheren.show_matrix(0)
+    p1 = PatientsMatrix(bids_root)
+    p1.get_patients()
     #calculate the cohernce between F01 AND F21.
     
     

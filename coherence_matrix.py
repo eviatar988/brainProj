@@ -39,11 +39,15 @@ def split_signal(signal, duration=1):
 
 
 def get_bids_path(bids_root, sub, task):
-    print(bids_root)
-    print(sub)
-    print(task)
-    bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
-                         datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+    
+    # complet deal with exepcion -------------------------------------------------------------------------------------------
+    
+    try:
+        bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
+                             datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+    except:
+        bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run='2',
+                             datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
     return bids_path
 
 
