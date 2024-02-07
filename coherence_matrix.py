@@ -39,6 +39,9 @@ def split_signal(signal, duration=1):
 
 
 def get_bids_path(bids_root, sub, task):
+    print(bids_root)
+    print(sub)
+    print(task)
     bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
                          datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
     return bids_path
@@ -48,7 +51,7 @@ def get_channels(raw):
     raw.set_eeg_reference()
     raw.notch_filter(np.arange(50,251,50))
     channels = raw.pick(picks="ecog",exclude="bads")
-    return channels
+    return channels.get_data()
 
 
 
@@ -58,45 +61,44 @@ def coherence_calc(signal_1, signal_2, freq):
 
 
 # creating coherence matrix between each channel ( for each second)
-def create_matrix(sec, freq, channels, raw):
-    matrix = np.empty((len(channels), len(channels)))
-    signals = []
-    for channel in channels:
-        signals.append(raw[channel, sec * freq:(sec + 1) * freq][0])
-    lenz = len(signals)
-    for row in range(lenz):
-        for col in range(row, lenz):
-            matrix[row][col] = coherence_calc(signals[row], signals[col], freq)
+def create_matrix(sec, freq, channels):
+    channel_count = len(channels)
+    matrix = np.empty(channel_count, channel_count)
+    sec = int(sec)
+    freq = int(freq)
+    for row in range(channel_count):
+        for col in range(row, channel_count):
+            matrix[row][col] = coherence_calc(channels[row][sec*freq:(sec+1)*freq],
+                                              channels[col][sec*freq:(sec+1)*freq], freq)
             matrix[col][row] = matrix[row][col]
     return matrix
 
 
 def create_matrix_list(sub, task, bids_path):
-
     raw = mne_bids.read_raw_bids(bids_path, verbose=None)
+    raw.load_data()
     channels = get_channels(raw)
     if len(channels) == 0:
         return None
     sample_rate = raw.info["sfreq"]
-    x, time = raw[channels[0], :]
-    time = int(time[-1])
+    time = int(len(channels[0]))/sample_rate
     time = int(time / 1)
     matrix_list = []
-    for i in range(time):#remove after testing
-        print("this is the sec num: " + str(i))
-        if i == 5:
+    for sec in range(time):#remove after testing
+        print("this is the sec num: " + str(sec))
+        if sec == 2:
             break
-        matrix_list.append(create_matrix(i, sample_rate, channels, raw))
+        matrix_list.append(create_matrix(sec, sample_rate, channels))
     return matrix_list
 
 
 class CoherenceMatrix:
-    def __init__(self, sub_tag, task, bids_root):
+    def __init__(self, bids_root, sub_tag, task):
         self.sub = sub_tag
         self.task = task
         self.bids_root = bids_root
-        bids_path = get_bids_path(bids_root, sub_tag, task)
-        self.matrix_list = create_matrix_list(sub_tag, task, bids_path)
+        self.bids_path = get_bids_path(bids_root, sub_tag, task)
+        self.matrix_list = create_matrix_list(sub_tag, task, self.bids_path)
 
     def get_root(self):
         return self.bids_root

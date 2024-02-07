@@ -30,21 +30,13 @@ run = '1'
 
 def main():
 
-
     # Download one subject's data from each dataset
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
     print(bids_root)
-
-    path = BIDSPath(root=bids_root, subject="10", session=session, task='rest', run=run,
-                    datatype=datatype, acquisition=acquisition, suffix=suffix)
-    raw = read_raw_bids(path, verbose=None)
-    raw.load_data()
-    raw.set_eeg_reference()
-    raw.notch_filter(np.arange(50,251,50))
-    raw.compute_psd().plot()
-    psd_try = raw.compute_psd()
-    signal,time = psd_try.get
-    
+    sub = '10'
+    task = 'film'
+    coheren = CoherenceMatrix(bids_root, '02', 'film')
+    coheren.show_matrix(0)
    
     #calculate the cohernce between F01 AND F21.
     
