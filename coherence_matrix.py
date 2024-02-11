@@ -40,7 +40,7 @@ def split_signal(signal, duration=1):
 
 def get_bids_path(bids_root, sub, task):
     
-    # complet deal with exepcion -------------------------------------------------------------------------------------------
+    # TODO: complet deal with exepcion -------------------------------------------------------------------------------------------
     
     try:
         bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
