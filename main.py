@@ -39,9 +39,13 @@ def main():
     #coheren = CoherenceMatrix(bids_root, '02', 'film')
     #coheren.show_matrix(0)
     p1 = PatientsMatrix(bids_root)
-    matrix = p1.all_film_matrix
-    matrix[0].show_matrix(0)
-    #calculate the cohernce between F01 AND F21.
+    """loaded_data = np.load('coherence_matrixs.npz', allow_pickle=True)
+    rest_matrixs = loaded_data['arr_film']
+    plt.imshow(rest_matrixs[1], cmap='viridis')
+    plt.colorbar()
+    plt.show()"""
+
+#calculate the cohernce between F01 AND F21.
     
     
 if __name__ == '__main__': # if we're running file directly and not importing it

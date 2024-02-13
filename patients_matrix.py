@@ -3,12 +3,17 @@ import numpy as np
 import pandas as pd
 import os
 import os.path as op
-
+import pickle
 import matplotlib.pyplot as plt
 from coherence_matrix import CoherenceMatrix
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
 import scipy
 import mne
+
+
+# object hold all the matrix's of both films and rest for all patients
+
+save_filename = 'coherence_matrixs.npz'
 
 
 class PatientsMatrix:
@@ -18,9 +23,9 @@ class PatientsMatrix:
         self.all_rest_matrix = []  # list of all the rest matrix
         patients = self.get_patients()
         for patient in patients:
-            if patient == "04":#for testing
+            if patient == "04":# for testing
                 break
-            print(patient)
+            print("patient: ".join(patient))
             self.add_patient(sub=patient)
 
     def add_patient(self, sub):
@@ -28,10 +33,10 @@ class PatientsMatrix:
         film_matrix_list = CoherenceMatrix(self.bids_root, sub, "film")
 
         if rest_matrix_list.matrix_list is not None:
-            self.all_rest_matrix.append(rest_matrix_list)
+            self.all_rest_matrix.extend(rest_matrix_list.get_matrix_list())
 
         if film_matrix_list.matrix_list is not None:
-            self.all_film_matrix.append(film_matrix_list)
+            self.all_film_matrix.extend(film_matrix_list.get_matrix_list())
 
     def get_patients(self):
         patients_list = []
@@ -48,7 +53,11 @@ class PatientsMatrix:
             else:
                 patients_list.append(str(i))
         return patients_list
-        # print(patients_list)
+        # print(patients_list)8 j
+
+    def save_matrix_to_file(self):
+        np.savez(save_filename, arr_rest=np.array(self.all_rest_matrix, dtype=object),
+                 arr_film=np.array(self.all_rest_matrix, dtype=object), allow_pickle=True)
 
     def get_rest_matrix_list(self):
         return self.all_rest_matrix

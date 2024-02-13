@@ -1,5 +1,5 @@
 import sys
-
+import warnings
 import mne_bids
 import numpy as np
 import pandas as pd
@@ -9,7 +9,9 @@ import matplotlib.pyplot as plt
 import io
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
 import scipy
-
+import pickle
+# Ignore RuntimeWarnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 import seaborn as sns
 import mne
 
@@ -21,28 +23,8 @@ run = '1'
 exten = '.vhdr'
 
 
-def split_signal(signal, duration=1):
-    x1, y1 = signal
-    sample_rate = 1 / (x1[1] - x1[0])  # Assuming uniform sampling rate
-    print(sample_rate)
-    # Calculate the number of samples for the specified duration
-    samples_per_subsignal = int(duration * sample_rate)
-
-    # Calculate the total number of full sub-signals
-    num_full_subsignals = len(x1) // samples_per_subsignal
-
-    # Split the signal into sub-signals
-    subsignals = [
-        (x1[i * samples_per_subsignal:(i + 1) * samples_per_subsignal],
-         y1[i * samples_per_subsignal:(i + 1) * samples_per_subsignal])
-        for i in range(num_full_subsignals)
-    ]
-
-    return subsignals
-
-
 #find the number of run for a patient task, find the file and take the run number from its name
-def find_run(directory_path,run_path):
+def find_run(directory_path, run_path):
     for filename in os.listdir(directory_path):
         if filename.startswith(run_path):
             return filename[filename.find('run')+4]
@@ -55,7 +37,7 @@ def get_bids_path(bids_root, sub, task):
     if op.isdir(iemu_path):
         run_num = find_run(iemu_path, run_path)
         bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run_num,
-                         datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+                         datatype=datatype, acquisition=acquisition, suffix=suffix)
         return bids_path
     else:
         return None
@@ -134,7 +116,6 @@ class CoherenceMatrix:
         if self.bids_path is not None:
             self.matrix_list = create_matrix_list(self.bids_path)
 
-
     def get_root(self):
         return self.bids_root
 
@@ -143,6 +124,9 @@ class CoherenceMatrix:
 
     def get_task(self):
         return self.task
+
+    def get_matrix_list(self):
+        return self.matrix_list
 
     def show_matrix(self, index):
         plt.imshow(self.matrix_list[index], cmap='viridis')
