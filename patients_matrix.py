@@ -51,8 +51,8 @@ class PatientsMatrix:
     
     # TODO: complete the last function...
     # func that for every patient in the list, apply the function add_patient
-    
-    def fill_all_matrix(self):
+    #fill the all_film_matrix and all_rest_matrix
+    def fill_all_matrix(self): 
         for patient in self.patients_list:
             self.add_patient(patient)
     
