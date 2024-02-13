@@ -9,3 +9,6 @@ mne_data.lnk
 __pycache__/bids_extract.cpython-39.pyc
 
 readme.txt
+*.pyc
+*.pyc
+*.pyc

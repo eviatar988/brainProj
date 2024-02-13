@@ -2,6 +2,7 @@ import mne_bids
 import numpy as np
 import pandas as pd
 import os
+import os.path as op
 import matplotlib.pyplot as plt
 
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
@@ -39,19 +40,26 @@ def split_signal(signal, duration=1):
 
 
 def get_bids_path(bids_root, sub, task):
-    try:
-        bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
-                             datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
-    except:
-        bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run='2',
-                             datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
-    return bids_path
+    iemu_path = op.join(bids_root, 'sub-'+sub,'ses-iemu')
+    print(iemu_path)
+    print(sub)
+    if op.isdir(iemu_path):
+        try:
+            bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
+                                 datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+        except:
+            bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run='2',
+                                 datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+        return bids_path
+    else:
+        return None
+
 
 
 def get_channels(raw):
     raw.set_eeg_reference()
     raw.notch_filter(np.arange(50, 251, 50))
-    channels = raw.pick(picks="ecog", exclude="bads")
+    channels = raw.pick(picks=['ecog'], exclude="bads")
     return channels.get_data()
 
 

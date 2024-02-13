@@ -18,6 +18,7 @@ class PatientsMatrix:
         self.all_rest_matrix = []  # list of all the rest matrix
         patients = self.get_patients()
         for patient in patients:
+            print(patient)
             self.add_patient(sub=patient)
 
     def add_patient(self, sub):
@@ -46,3 +47,9 @@ class PatientsMatrix:
                 patients_list.append(str(i))
         return patients_list
         # print(patients_list)
+
+    def get_rest_matrix_list(self):
+        return self.all_rest_matrix
+
+    def get_film_matrix_list(self):
+        return self.all_film_matrix

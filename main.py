@@ -39,7 +39,6 @@ def main():
     #coheren = CoherenceMatrix(bids_root, '02', 'film')
     #coheren.show_matrix(0)
     p1 = PatientsMatrix(bids_root)
-    p1.get_patients()
     #calculate the cohernce between F01 AND F21.
     
     
