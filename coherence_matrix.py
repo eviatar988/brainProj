@@ -1,10 +1,12 @@
+import sys
+
 import mne_bids
 import numpy as np
 import pandas as pd
 import os
 import os.path as op
 import matplotlib.pyplot as plt
-
+import io
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
 import scipy
 
@@ -39,24 +41,29 @@ def split_signal(signal, duration=1):
     return subsignals
 
 
-def find_run(directory_path,sub):
-    for filename in os.listdir(directory):
-        if filename.startswith(start_of_name):
-            return os.path.join(directory, filename)
+#find the number of run for a patient task, find the file and take the run number from its name
+def find_run(directory_path,run_path):
+    for filename in os.listdir(directory_path):
+        if filename.startswith(run_path):
+            return filename[filename.find('run')+4]
     return None
 
 
 def get_bids_path(bids_root, sub, task):
-    iemu_path = op.join(bids_root, 'sub-'+sub, 'ses-iemu')
-    run_path = str(iemu_path).join("_task-",task)
+    iemu_path = op.join(bids_root, 'sub-'+sub, 'ses-iemu',"ieeg")
+    run_path = "".join(('sub-'+sub, '_ses-iemu_task-',task))
     if op.isdir(iemu_path):
-        run = find_run()
+        run_num = find_run(iemu_path, run_path)
+        bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run_num,
+                         datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
+        return bids_path
     else:
         return None
 
 
 
 def get_channels(raw):
+    raw.load_data()
     raw.set_eeg_reference()
     raw.notch_filter(np.arange(50, 251, 50))
     if 'ecog' in raw.get_channel_types():
@@ -87,13 +94,25 @@ def create_matrix(sec, freq, channels):
     return matrix
 
 
-def create_matrix_list(bids_path, sub, task):
-    raw = mne_bids.read_raw_bids(bids_path, verbose=None)
-    raw.load_data()
+def raw_handler(bids_path):
+    dummy_output = io.StringIO()
+    # Save the current stdout
+    original_stdout = sys.stdout
+    # Redirect stdout to the dummy object
+    sys.stdout = dummy_output
+    # Now call the function that produces output
+    raw = read_raw_bids(bids_path)
+    sample_rate = raw.info['sfreq']
     channels = get_channels(raw)
+    # Restore the original stdout
+    sys.stdout = original_stdout
+    return channels, sample_rate
+
+
+def create_matrix_list(bids_path):
+    channels, sample_rate = raw_handler(bids_path)
     if channels is None:
         return None
-    sample_rate = raw.info["sfreq"]
     time = int(len(channels[0])) / sample_rate
     time = int(time / 1)
     matrix_list = []
@@ -111,7 +130,10 @@ class CoherenceMatrix:
         self.task = task
         self.bids_root = bids_root
         self.bids_path = get_bids_path(bids_root, sub_tag, task)
-        self.matrix_list = create_matrix_list(self.bids_path, sub_tag, task)
+        self.matrix_list = None
+        if self.bids_path is not None:
+            self.matrix_list = create_matrix_list(self.bids_path)
+
 
     def get_root(self):
         return self.bids_root

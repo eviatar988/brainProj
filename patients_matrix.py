@@ -18,6 +18,8 @@ class PatientsMatrix:
         self.all_rest_matrix = []  # list of all the rest matrix
         patients = self.get_patients()
         for patient in patients:
+            if patient == "04":#for testing
+                break
             print(patient)
             self.add_patient(sub=patient)
 
@@ -25,10 +27,10 @@ class PatientsMatrix:
         rest_matrix_list = CoherenceMatrix(self.bids_root, sub, "rest")
         film_matrix_list = CoherenceMatrix(self.bids_root, sub, "film")
 
-        if rest_matrix_list is not None:
+        if rest_matrix_list.matrix_list is not None:
             self.all_rest_matrix.append(rest_matrix_list)
 
-        if film_matrix_list is not None:
+        if film_matrix_list.matrix_list is not None:
             self.all_film_matrix.append(film_matrix_list)
 
     def get_patients(self):
