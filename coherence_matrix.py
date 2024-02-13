@@ -39,18 +39,18 @@ def split_signal(signal, duration=1):
     return subsignals
 
 
+def find_run(directory_path,sub):
+    for filename in os.listdir(directory):
+        if filename.startswith(start_of_name):
+            return os.path.join(directory, filename)
+    return None
+
+
 def get_bids_path(bids_root, sub, task):
-    iemu_path = op.join(bids_root, 'sub-'+sub,'ses-iemu')
-    print(iemu_path)
-    print(sub)
+    iemu_path = op.join(bids_root, 'sub-'+sub, 'ses-iemu')
+    run_path = str(iemu_path).join("_task-",task)
     if op.isdir(iemu_path):
-        try:
-            bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
-                                 datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
-        except:
-            bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run='2',
-                                 datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
-        return bids_path
+        run = find_run()
     else:
         return None
 
@@ -59,8 +59,13 @@ def get_bids_path(bids_root, sub, task):
 def get_channels(raw):
     raw.set_eeg_reference()
     raw.notch_filter(np.arange(50, 251, 50))
-    channels = raw.pick(picks=['ecog'], exclude="bads")
-    return channels.get_data()
+    if 'ecog' in raw.get_channel_types():
+        channels = raw.pick(picks=['ecog'], exclude='bads')
+        return channels.get_data()
+    else:
+        return None
+
+# channels = raw.pick(picks='ecog' , exclude='bads')
 
 
 def coherence_calc(signal_1, signal_2, freq):
@@ -71,7 +76,7 @@ def coherence_calc(signal_1, signal_2, freq):
 # creating coherence matrix between each channel ( for each second)
 def create_matrix(sec, freq, channels):
     channel_count = len(channels)
-    matrix = np.empty(channel_count, channel_count)
+    matrix = np.empty((channel_count, channel_count))
     sec = int(sec)
     freq = int(freq)
     for row in range(channel_count):
@@ -82,11 +87,11 @@ def create_matrix(sec, freq, channels):
     return matrix
 
 
-def create_matrix_list(sub, task, bids_path):
+def create_matrix_list(bids_path, sub, task):
     raw = mne_bids.read_raw_bids(bids_path, verbose=None)
     raw.load_data()
     channels = get_channels(raw)
-    if len(channels) == 0:
+    if channels is None:
         return None
     sample_rate = raw.info["sfreq"]
     time = int(len(channels[0])) / sample_rate
@@ -106,7 +111,7 @@ class CoherenceMatrix:
         self.task = task
         self.bids_root = bids_root
         self.bids_path = get_bids_path(bids_root, sub_tag, task)
-        self.matrix_list = create_matrix_list(sub_tag, task, self.bids_path)
+        self.matrix_list = create_matrix_list(self.bids_path, sub_tag, task)
 
     def get_root(self):
         return self.bids_root
