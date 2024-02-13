@@ -9,6 +9,8 @@ from coherence_matrix import CoherenceMatrix
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
 import scipy
 import mne
+from tqdm import tqdm
+
 
 
 # object hold all the matrix's of both films and rest for all patients
@@ -23,9 +25,6 @@ class PatientsMatrix:
         self.all_rest_matrix = []  # list of all the rest matrix
         patients = self.get_patients()
         for patient in patients:
-            if patient == "04":# for testing
-                break
-            print("patient: ".join(patient))
             self.add_patient(sub=patient)
 
     def add_patient(self, sub):
@@ -45,7 +44,6 @@ class PatientsMatrix:
 
         # read participants.tsv file
         participants = pd.read_csv(participants_path, sep='\t')
-        print(len(participants))
         # creat array of strings like 01, 02, 03, 04, 05, 06, 07, 08, 09, 10...
         for i in range(1, len(participants) + 1):
             if i < 10:

@@ -39,6 +39,7 @@ def main():
     #coheren = CoherenceMatrix(bids_root, '02', 'film')
     #coheren.show_matrix(0)
     p1 = PatientsMatrix(bids_root)
+    p1.save_matrix_to_file()
     """loaded_data = np.load('coherence_matrixs.npz', allow_pickle=True)
     rest_matrixs = loaded_data['arr_film']
     plt.imshow(rest_matrixs[1], cmap='viridis')

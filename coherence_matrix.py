@@ -14,6 +14,7 @@ import pickle
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 import seaborn as sns
 import mne
+from tqdm import tqdm
 
 session = 'iemu'
 datatype = 'ieeg'
@@ -68,7 +69,7 @@ def create_matrix(sec, freq, channels):
     matrix = np.empty((channel_count, channel_count))
     sec = int(sec)
     freq = int(freq)
-    for row in range(channel_count):
+    for row in (range(channel_count)):
         for col in range(row, channel_count):
             matrix[row][col] = coherence_calc(channels[row][sec * freq:(sec + 1) * freq],
                                               channels[col][sec * freq:(sec + 1) * freq], freq)
@@ -99,9 +100,6 @@ def create_matrix_list(bids_path):
     time = int(time / 1)
     matrix_list = []
     for sec in range(time):  # remove after testing
-        print("this is the sec num: " + str(sec))
-        if sec == 2:
-            break
         matrix_list.append(create_matrix(sec, sample_rate, channels))
     return matrix_list
 
