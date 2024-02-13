@@ -50,6 +50,11 @@ class PatientsMatrix:
         #print(patients_list)
     
     # TODO: complete the last function...
+    # func that for every patient in the list, apply the function add_patient
+    
+    def fill_all_matrix(self):
+        for patient in self.patients_list:
+            self.add_patient(patient)
     
              
         
