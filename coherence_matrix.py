@@ -39,9 +39,6 @@ def split_signal(signal, duration=1):
 
 
 def get_bids_path(bids_root, sub, task):
-    
-    # complet deal with exepcion -------------------------------------------------------------------------------------------
-    
     try:
         bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run,
                              datatype=datatype, acquisition=acquisition, suffix=suffix, extension=exten)
@@ -53,14 +50,13 @@ def get_bids_path(bids_root, sub, task):
 
 def get_channels(raw):
     raw.set_eeg_reference()
-    raw.notch_filter(np.arange(50,251,50))
-    channels = raw.pick(picks="ecog",exclude="bads")
+    raw.notch_filter(np.arange(50, 251, 50))
+    channels = raw.pick(picks="ecog", exclude="bads")
     return channels.get_data()
 
 
-
 def coherence_calc(signal_1, signal_2, freq):
-    f, coherence = scipy.signal.coherence(signal_1, signal_2, fs=freq, nperseg=freq/2)
+    f, coherence = scipy.signal.coherence(signal_1, signal_2, fs=freq, nperseg=freq / 2)
     return np.mean(coherence)
 
 
@@ -72,8 +68,8 @@ def create_matrix(sec, freq, channels):
     freq = int(freq)
     for row in range(channel_count):
         for col in range(row, channel_count):
-            matrix[row][col] = coherence_calc(channels[row][sec*freq:(sec+1)*freq],
-                                              channels[col][sec*freq:(sec+1)*freq], freq)
+            matrix[row][col] = coherence_calc(channels[row][sec * freq:(sec + 1) * freq],
+                                              channels[col][sec * freq:(sec + 1) * freq], freq)
             matrix[col][row] = matrix[row][col]
     return matrix
 
@@ -85,10 +81,10 @@ def create_matrix_list(sub, task, bids_path):
     if len(channels) == 0:
         return None
     sample_rate = raw.info["sfreq"]
-    time = int(len(channels[0]))/sample_rate
+    time = int(len(channels[0])) / sample_rate
     time = int(time / 1)
     matrix_list = []
-    for sec in range(time):#remove after testing
+    for sec in range(time):  # remove after testing
         print("this is the sec num: " + str(sec))
         if sec == 2:
             break
@@ -106,15 +102,13 @@ class CoherenceMatrix:
 
     def get_root(self):
         return self.bids_root
-    
+
     def get_sub(self):
         return self.sub
-    
-    
+
     def get_task(self):
         return self.task
-    
-    
+
     def show_matrix(self, index):
         plt.imshow(self.matrix_list[index], cmap='viridis')
         plt.colorbar()
