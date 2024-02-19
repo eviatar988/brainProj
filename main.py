@@ -33,11 +33,11 @@ def main():
 
     # Download one subject's data from each dataset
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    #print(bids_root)
+    # print(bids_root)
     sub = '10'
     task = 'film'
-    #coheren = CoherenceMatrix(bids_root, '02', 'film')
-    #coheren.show_matrix(0)
+    # coheren = CoherenceMatrix(bids_root, '02', 'film')
+    # coheren.show_matrix(0)
     p1 = PatientsMatrix(bids_root)
     p1.save_matrix_to_file()
     """loaded_data = np.load('coherence_matrixs.npz', allow_pickle=True)
