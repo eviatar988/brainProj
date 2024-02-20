@@ -27,7 +27,7 @@ class PatientsMatrix:
         for patient in patients:
             self.add_patient(sub=patient)
 
-    def add_patient(self, sub):
+    def add_patient(self, sub): # add all the matrix's of the patient to the list
         rest_matrix_list = CoherenceMatrix(self.bids_root, sub, "rest")
         film_matrix_list = CoherenceMatrix(self.bids_root, sub, "film")
 
@@ -37,7 +37,7 @@ class PatientsMatrix:
         if film_matrix_list.matrix_list is not None:
             self.all_film_matrix.extend(film_matrix_list.get_matrix_list())
 
-    def get_patients(self):
+    def get_patients(self): # get all the patients in the dataset
         patients_list = []
 
         participants_path = op.join(self.bids_root, 'participants.tsv')
