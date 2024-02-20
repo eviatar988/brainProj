@@ -9,7 +9,8 @@ from tqdm import tqdm
 # object hold all the matrix's of both films and rest for all patients
 
 save_filename = 'coherence_matrixs.npz'
-
+rest_lists_path = 'C:/Users/eviat/Desktop/brainProj/rest_lists/'
+film_lists_path = 'C:/Users/eviat/Desktop/brainProj/film_lists/'
 
 class PatientsMatrix:
     def __init__(self, bids_root):
@@ -58,10 +59,10 @@ class PatientsMatrix:
             film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film")
 
             if rest_matrix_list.matrix_list is not None:
-                np.savez('/rest_lists/' + patient + '_rest_matrixs.npz', arr_rest=np.array(rest_matrix_list, dtype=object), allow_pickle=True)
+                np.savez(rest_lists_path + patient + '_rest_matrixs.npz', arr_rest=np.array(rest_matrix_list, dtype=object), allow_pickle=True)
 
             if film_matrix_list.matrix_list is not None:
-                np.savez('/film_lists/' + patient + '_film_matrixs.npz', arr_film=np.array(film_matrix_list, dtype=object), allow_pickle=True)
+                np.savez(film_lists_path + patient + '_film_matrixs.npz', arr_film=np.array(film_matrix_list, dtype=object), allow_pickle=True)
 
 
     def get_rest_matrix_list(self):
