@@ -30,12 +30,15 @@ def find_run(directory_path, run_path):
 
 def get_bids_path(bids_root, sub, task):
     iemu_path = op.join(bids_root, 'sub-'+sub, 'ses-iemu',"ieeg")
-    run_path = "".join(('sub-'+sub, '_ses-iemu_task-',task))
+    run_path = "".join(('sub-'+sub, '_ses-iemu_task-', task))
     if op.isdir(iemu_path):
         run_num = find_run(iemu_path, run_path)
-        bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run_num,
-                         datatype=datatype, acquisition=acquisition, suffix=suffix)
-        return bids_path
+        if run_num is not None:
+            bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run_num,
+                        datatype=datatype, acquisition=acquisition, suffix=suffix)
+            return bids_path
+        else:
+            return None
     else:
         return None
 
