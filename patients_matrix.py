@@ -1,14 +1,7 @@
-import mne_bids
 import numpy as np
 import pandas as pd
-import os
 import os.path as op
-import pickle
-import matplotlib.pyplot as plt
 from coherence_matrix import CoherenceMatrix
-from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
-import scipy
-import mne
 from tqdm import tqdm
 
 

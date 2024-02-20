@@ -1,20 +1,16 @@
 import sys
 import warnings
-import mne_bids
 import numpy as np
-import pandas as pd
 import os
 import os.path as op
 import matplotlib.pyplot as plt
 import io
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
 import scipy
-import pickle
+
 # Ignore RuntimeWarnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
-import seaborn as sns
-import mne
-from tqdm import tqdm
+
 
 session = 'iemu'
 datatype = 'ieeg'
@@ -24,7 +20,7 @@ run = '1'
 exten = '.vhdr'
 
 
-#find the number of run for a patient task, find the file and take the run number from its name
+# find the number of run for a patient task, find the file and take the run number from its name
 def find_run(directory_path, run_path):
     for filename in os.listdir(directory_path):
         if filename.startswith(run_path):
