@@ -19,8 +19,8 @@ def main():
 
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
 
-    #p1 = PatientsMatrix(bids_root)
-    #p1.save_matrix_to_file()
+    p1 = PatientsMatrix(bids_root)
+    p1.save_matrix_to_file()
 
 
     """loaded_data = np.load('coherence_matrixs.npz', allow_pickle=True)

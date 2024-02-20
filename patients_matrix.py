@@ -24,8 +24,8 @@ class PatientsMatrix:
         self.all_film_matrix = []  # list of all the film matrix
         self.all_rest_matrix = []  # list of all the rest matrix
         patients = self.get_patients()
-        for patient in patients:
-            self.add_patient(sub=patient)
+        '''for patient in patients:
+            self.add_patient(sub=patient)'''
 
     def add_patient(self, sub): # add all the matrix's of the patient to the list
         rest_matrix_list = CoherenceMatrix(self.bids_root, sub, "rest")
@@ -51,11 +51,25 @@ class PatientsMatrix:
             else:
                 patients_list.append(str(i))
         return patients_list
-        # print(patients_list)8 j
+
 
     def save_matrix_to_file(self):
-        np.savez(save_filename, arr_rest=np.array(self.all_rest_matrix, dtype=object),
-                 arr_film=np.array(self.all_rest_matrix, dtype=object), allow_pickle=True)
+        """np.savez(save_filename, arr_rest=np.array(self.all_rest_matrix, dtype=object),
+                 arr_film=np.array(self.all_rest_matrix, dtype=object), allow_pickle=True)"""
+
+
+   # -------new code for saving the matrix's to file-------
+
+        for patient in tqdm(self.get_patients()):
+            rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest")
+            film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film")
+
+            if rest_matrix_list.matrix_list is not None:
+                np.savez('/rest_lists/' + patient + '_rest_matrixs.npz', arr_rest=np.array(rest_matrix_list, dtype=object), allow_pickle=True)
+
+            if film_matrix_list.matrix_list is not None:
+                np.savez('/film_lists/' + patient + '_film_matrixs.npz', arr_film=np.array(film_matrix_list, dtype=object), allow_pickle=True)
+
 
     def get_rest_matrix_list(self):
         return self.all_rest_matrix
