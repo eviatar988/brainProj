@@ -60,12 +60,12 @@ class PatientsMatrix:
 
             if rest_matrix_list.matrix_list is not None:
                 np.savez(rest_lists_path + patient + '_rest_matrixs.npz',
-                         arr_rest=np.array(rest_matrix_list.get_matrix_list(), dtype=object), allow_pickle=True)
+                         arr_rest=np.array(rest_matrix_list.get_matrix_list(), dtype=float), allow_pickle=True)
             else:
                 print(patient.join("has no ecog for rest"))
             if film_matrix_list.matrix_list is not None:
                 np.savez(film_lists_path + patient + '_film_matrixs.npz',
-                         arr_film=np.array(film_matrix_list.get_matrix_list(), dtype=object), allow_pickle=True)
+                         arr_film=np.array(film_matrix_list.get_matrix_list(), dtype=float), allow_pickle=True)
             else:
                 print(patient.join("has no ecog for film"))
 
