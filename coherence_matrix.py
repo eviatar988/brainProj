@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import io
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
 import scipy
+from tqdm import tqdm
 
 # Ignore RuntimeWarnings
-warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 session = 'iemu'
@@ -70,9 +70,8 @@ def create_matrix(sec, freq, channels):
     freq = int(freq)
     for row in (range(channel_count)):
         for col in range(row, channel_count):
-            matrix[row][col] = coherence_calc(channels[row][sec * freq:(sec + 1) * freq],
-                                              channels[col][sec * freq:(sec + 1) * freq], freq)
-            matrix[col][row] = matrix[row][col]
+            matrix[row, col] = coherence_calc(channels[row], channels[col], freq)
+            matrix[col, row] = matrix[row, col]
     return matrix
 
 
@@ -98,8 +97,8 @@ def create_matrix_list(bids_path):
     time = int(len(channels[0])) / sample_rate
     time = int(time / 1)
     matrix_list = []
-    for sec in range(time):  # remove after testing
-        matrix_list.append(create_matrix(sec, sample_rate, channels))
+    for sec in tqdm(range(time)):  # remove after testing
+        matrix_list.append(create_matrix(sec, sample_rate, channels[:, int(sec*sample_rate):int((sec+1)*sample_rate)]))
     return matrix_list
 
 

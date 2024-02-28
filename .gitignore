@@ -37,3 +37,4 @@ readme.txt
 /film_lists/32_film_matrixs.npz
 /film_lists/
 /rest_lists/
+*.pyc

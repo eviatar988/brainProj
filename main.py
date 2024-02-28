@@ -14,14 +14,17 @@ datatype = 'ieeg'
 acquisition = 'clinical'
 suffix = 'ieeg'
 run = '1'
-
+rest_lists_path = 'rest_lists'
+film_lists_path = 'film_lists'
 
 
 def main():
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    p1 = PatientsMatrix(bids_root)
-    p1.save_matrix_to_file()
-
+    data = np.load(op.join(film_lists_path, '02' + '_film_matrixs.npz'))
+    film_matrix = data['arr_film']
+    plt.imshow(film_matrix[0], cmap='viridis')
+    plt.colorbar()
+    plt.show()
 
 if __name__ == '__main__':
     main()
