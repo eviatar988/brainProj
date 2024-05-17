@@ -48,6 +48,15 @@ class PatientsMatrix:
         return patients_list
 
 
+    def flat_matrix(self, matrix):
+        flat_matrix = []
+        for i in range(matrix.shape[0]):
+            for j in range(i,matrix.shape[1]):
+                flat_matrix.append(matrix[i,j])
+
+
+
+
     def patient_thread(self, patient):
 
         rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest", self.freq_type)
@@ -70,7 +79,7 @@ class PatientsMatrix:
                  arr_film=np.array(self.all_rest_matrix, dtype=object), allow_pickle=True)"""
 
    # -------new code for saving the matrix's to file-------
-        for patient in self.get_patients()[25:]:
+        for patient in self.get_patients():
             print(patient)
             p_thread = threading.Thread(target=self.patient_thread,args=(patient,))
             p_thread.start()

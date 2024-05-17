@@ -191,12 +191,11 @@ class CoherenceMatrix:
     # creating coherence matrix between each channel ( for each second)
     def create_matrix(self, sec):
         channel_count = len(self.channels)
-        matrix = np.empty((channel_count, channel_count))
+        matrix = []
         for row in (range(channel_count)):
-            for col in range(row, channel_count):
-                matrix[row, col] = self.coherence_calc(row, col, sec)
-                matrix[col, row] = matrix[row, col]
-        return matrix
+            for col in range(row+1, channel_count):
+                matrix.append(self.coherence_calc(row, col, sec))
+        return np.array(matrix, dtype= float)
 
     def create_matrix_list(self):
         print('creating matrixs')
