@@ -52,7 +52,7 @@ def main():
 
 
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    patient_m = PatientsMatrix(bids_root, "theta")
+    patient_m = PatientsMatrix(bids_root, "beta")
     patient_m.save_matrix_to_file()
     """rest_mean_list = []
     film_mean_list = []
