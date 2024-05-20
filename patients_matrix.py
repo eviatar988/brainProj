@@ -79,11 +79,21 @@ class PatientsMatrix:
                  arr_film=np.array(self.all_rest_matrix, dtype=object), allow_pickle=True)"""
 
    # -------new code for saving the matrix's to file-------
-        for patient in self.get_patients():
+        for patient in self.get_patients()[:16]:
             print(patient)
-            p_thread = threading.Thread(target=self.patient_thread,args=(patient,))
-            p_thread.start()
-            p_thread.join()
+            rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest", self.freq_type)
+            film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film", self.freq_type)
+
+            rest_matrix_list.create_matrix_list()
+            film_matrix_list.create_matrix_list()
+
+            if rest_matrix_list.matrix_list is not None and film_matrix_list.matrix_list is not None:
+                np.savez(op.join(rest_lists_path + self.freq_type, patient + '_rest_matrixs.npz'),
+                         arr_rest=np.array(rest_matrix_list.get_matrix_list(), dtype=float), allow_pickle=True)
+                np.savez(op.join(film_lists_path + self.freq_type, patient + '_film_matrixs.npz'),
+                         arr_film=np.array(film_matrix_list.get_matrix_list(), dtype=float), allow_pickle=True)
+            else:
+                print('No coherence')
 
     def get_rest_matrix_list(self):
         return self.all_rest_matrix

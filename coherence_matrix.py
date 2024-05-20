@@ -16,8 +16,8 @@ freq_dict = {
     'theta': (4, 8),
     'alpha': (8, 12),
     'beta': (12, 30),
-    'low gamma': (30, 70),
-    'high gamma': (70, 250)
+    'low_gamma': (30, 70),
+    'high_ gamma': (70, 250)
 }
 session = 'iemu'
 datatype = 'ieeg'

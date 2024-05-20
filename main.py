@@ -24,8 +24,8 @@ freq_dict = {
     'theta': (4, 8),
     'alpha': (8, 12),
     'beta': (12, 30),
-    'low gamma': (30, 70),
-    'high gamma': (70, 250)
+    'low_gamma': (30, 70),
+    'high_gamma': (70, 250)
 }
 
 
@@ -52,26 +52,27 @@ def main():
 
 
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    patient_m = PatientsMatrix(bids_root, "alpha")
+    patient_m = PatientsMatrix(bids_root, "low_gamma")
     patient_m.save_matrix_to_file()
-    """rest_mean_list = []
+    rest_mean_list = []
     film_mean_list = []
-    matrixs = np.load(op.join(rest_lists_path + 'delta', '26' + '_rest_matrixs.npz'))
+    matrixs = np.load(op.join(rest_lists_path + 'low_gamma', '17' + '_rest_matrixs.npz'))
     ars1 = matrixs['arr_rest']
-    matrixs = np.load(op.join(film_lists_path + 'alpha', '26' + '_film_matrixs.npz'))
+    matrixs = np.load(op.join(film_lists_path + 'low_gamma', '17' + '_film_matrixs.npz'))
     ars2 = matrixs['arr_film']
-    show_me_matrix(ars2[120],500)"""
-    """for i in range(100):
-        rest_mean_list.append(np.var(ars1[i].flatten()))
-        film_mean_list.append(np.var(ars2[i].flatten()))
+    len1= len(ars1[0])
+    len2 = len(ars2[0])
+    show_me_matrix(ars1[10],52)
+    count = 0
+    for i in range(180):
+        rest_mean_list.append(ars1[i][np.argsort(ars1[i])[-1:]])
+        film_mean_list.append(ars2[i][np.argsort(ars2[i])[-1:]])
+        if np.max(ars1[i]) < np.max(ars2[i]):
+            count += 1
 
-
-
-# Calculate Pearson's correlation coefficient
-    correlation, p_value = stats.pearsonr(rest_mean_list, film_mean_list)
-
-    print("Pearson Correlation Coefficient:", correlation)
-    print("p-value:", p_value)"""
+    print(count)
+    print(np.mean(film_mean_list))
+    print(np.mean(rest_mean_list))
 
 if __name__ == '__main__':
     main()
