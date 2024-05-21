@@ -38,3 +38,6 @@ readme.txt
 /film_lists/
 /rest_lists/
 *.pyc
+*.pyc
+*.iml
+*.xml

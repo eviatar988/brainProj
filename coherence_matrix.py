@@ -26,90 +26,6 @@ suffix = 'ieeg'
 run = '1'
 exten = '.vhdr'
 
-"""
-# find the number of run for a patient task, find the file and take the run number from its name
-def find_run(directory_path, run_path):
-    for filename in os.listdir(directory_path):
-        if filename.startswith(run_path):
-            return filename[filename.find('run')+4]
-    return None
-
-
-def get_bids_path(bids_root, sub, task):
-    iemu_path = op.join(bids_root, 'sub-'+sub, 'ses-iemu',"ieeg")
-    run_path = "".join(('sub-'+sub, '_ses-iemu_task-', task))
-    if op.isdir(iemu_path):
-        run_num = find_run(iemu_path, run_path)
-        if run_num is not None:
-            bids_path = BIDSPath(root=bids_root, subject=sub, session=session, task=task, run=run_num,
-                        datatype=datatype, acquisition=acquisition, suffix=suffix)
-            return bids_path
-        else:
-            return None
-    else:
-        return None
-
-
-
-def get_channels(raw):
-    raw.load_data()
-    raw.set_eeg_reference()
-    raw.notch_filter(np.arange(50, 251, 50))
-    if 'ecog' in raw.get_channel_types():
-        channels = raw.pick(picks=['ecog'], exclude='bads')
-        return channels.get_data()
-    else:
-        return None
-
-# channels = raw.pick(picks='ecog' , exclude='bads')
-
-
-def coherence_calc(signal_1, signal_2, freq, freq_type):
-    bounds = freq_dict.get(freq_type)
-    f, coherence = scipy.signal.coherence(signal_1, signal_2, fs=freq, nperseg=freq / 2)
-    return np.mean(coherence)
-
-
-# creating coherence matrix between each channel ( for each second)
-def create_matrix(freq, channels, freq_type):
-    channel_count = len(channels)
-    matrix = np.empty((channel_count, channel_count))
-    freq = int(freq)
-    for row in (range(channel_count)):
-        for col in range(row, channel_count):
-            matrix[row, col] = coherence_calc(channels[row], channels[col], freq, freq_type)
-            matrix[col, row] = matrix[row, col]
-    return matrix
-
-
-def raw_handler(bids_path):
-    dummy_output = io.StringIO()
-    # Save the current stdout
-    original_stdout = sys.stdout
-    # Redirect stdout to the dummy object
-    sys.stdout = dummy_output
-    # Now call the function that produces output
-    raw = read_raw_bids(bids_path)
-    sample_rate = raw.info['sfreq']
-    channels = get_channels(raw)
-    # Restore the original stdout
-    sys.stdout = original_stdout
-    return channels, sample_rate
-
-
-def create_matrix_list(bids_path, freq_type):
-    channels, sample_rate = raw_handler(bids_path)
-    if channels is None:
-        return None
-    time = int(len(channels[0])) / sample_rate
-    time = int(time / 1)
-    matrix_list = []
-    for sec in tqdm(range(time)):  # remove after testing
-        matrix_list.append(create_matrix(sample_rate, channels[:, int(sec*sample_rate):int((sec+1)*sample_rate)]
-                                         , freq_type))
-    return matrix_list
-"""
-
 
 def find_run(directory_path, run_path):
     for filename in os.listdir(directory_path):
@@ -135,9 +51,8 @@ def get_bids_path(bids_root, sub, task):
 
 class CoherenceMatrix:
 
-    def __init__(self, bids_root, sub_tag, task, freq_type):
+    def __init__(self, bids_root, sub_tag, task):
         self.bids_path = get_bids_path(bids_root, sub_tag, task)
-        self.freq_type = freq_type
         self.sample_freq = -1
         self.channels = None
         self.handle_channels()
@@ -179,14 +94,13 @@ class CoherenceMatrix:
     def coherence_calc(self, index1, index2, sec):
         if self.channels is None:
             return
-        freq_bounds = freq_dict.get(self.freq_type)
         freq = int(self.sample_freq)
         time_bound = sec*freq
         channel1 = self.channels[index1]
         channel2 = self.channels[index2]
         f, coherence = scipy.signal.coherence(channel1[time_bound:time_bound+freq], channel2[time_bound:time_bound+freq]
                                               , fs=self.sample_freq, nperseg=self.sample_freq / 2)
-        return np.mean(coherence[freq_bounds[0]:freq_bounds[1]])
+        return coherence
 
     # creating coherence matrix between each channel ( for each second)
     def create_matrix(self, sec):
@@ -195,7 +109,7 @@ class CoherenceMatrix:
         for row in (range(channel_count)):
             for col in range(row+1, channel_count):
                 matrix.append(self.coherence_calc(row, col, sec))
-        return np.array(matrix, dtype= float)
+        return matrix
 
     def create_matrix_list(self):
         print('creating matrixs')
