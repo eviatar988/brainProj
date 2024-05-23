@@ -17,8 +17,8 @@ datatype = 'ieeg'
 acquisition = 'clinical'
 suffix = 'ieeg'
 run = '1'
-rest_lists_path = 'rest_lists'
-film_lists_path = 'film_lists'
+rest_data_path = 'rest_data'
+film_data_path = 'film_data'
 freq_dict = {
     'delta': (1, 4),
     'theta': (4, 8),
@@ -47,6 +47,10 @@ def show_me_matrix(matrix_flat, name):
     plt.show()
 
 
+def readfile(task ,patient, freq, sec_per_sample):
+    task_dir_path = op.join(f'{task}_data' ,f'patient={patient}')
+    data = np.load(op.join(task_dir_path, f'patient={patient},freq={freq},sec_per_sample={sec_per_sample}.npz'))
+    return data['matrix_arr']
 
 def main():
 

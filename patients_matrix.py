@@ -76,8 +76,8 @@ class PatientsMatrix:
                 os.mkdir(op.join(rest_data_path))
             if not os.path.isdir(op.join(film_data_path)):
                 os.mkdir(op.join(film_data_path))
-            rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest", sec_per_sample)
-            film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film", sec_per_sample)
+            rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest", self.sec_per_sample)
+            film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film", self.sec_per_sample)
 
             rest_matrix_list.create_matrix_list()
             film_matrix_list.create_matrix_list()
