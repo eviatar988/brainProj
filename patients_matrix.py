@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 import os.path as op
 from coherence_matrix import CoherenceMatrix
 from tqdm import tqdm
@@ -9,8 +10,8 @@ import threading
 # object hold all the matrix's of both films and rest for all patients
 
 save_filename = 'coherence_matrixs.npz'
-rest_lists_path = 'rest_lists'
-film_lists_path = 'film_lists'
+rest_data_path = 'rest_data'
+film_data_path = 'film_data'
 freq_dict = {
     'delta': (1, 4),
     'theta': (4, 8),
@@ -21,8 +22,8 @@ freq_dict = {
 }
 
 class PatientsMatrix:
-    def __init__(self, bids_root, freq_type):
-        self.freq_type = freq_type
+    def __init__(self, bids_root, sec_per_sample):
+        self.sec_per_sample = int(sec_per_sample)
         self.bids_root = bids_root
         self.all_film_matrix = []  # list of all the film matrix
         self.all_rest_matrix = []  # list of all the rest matrix
@@ -63,31 +64,6 @@ class PatientsMatrix:
                 flat_matrix.append(matrix[i, j])
 
 
-
-
-    def patient_thread(self, patient):
-
-        rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest")
-        film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film")
-
-        rest_matrix_list.create_matrix_list()
-        film_matrix_list.create_matrix_list()
-        if rest_matrix_list.matrix_list is not None and film_matrix_list.matrix_list is not None:
-            return
-        else:
-            print('No coherence')
-        rest_matrix_list = np.array(rest_matrix_list.get_matrix_list(),dtype=float)
-        film_matrix_list = np.array(film_matrix_list.get_matrix_list(),dtype=float)
-        for key in freq_dict:
-            lower_Bound = freq_dict[key][0]
-            upper_Bound = freq_dict[key][1]
-            np.savez(op.join(rest_lists_path + key, patient + key + '_rest_matrixs.npz'),
-                     arr_rest=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
-            np.savez(op.join(film_lists_path + key, patient + key + '_film_matrixs.npz'),
-                     arr_rest=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
-
-
-
     def save_matrix_to_file(self):
         """np.savez(save_filename, arr_rest=np.array(self.all_rest_matrix, dtype=object),
                  arr_film=np.array(self.all_rest_matrix, dtype=object), allow_pickle=True)"""
@@ -95,25 +71,35 @@ class PatientsMatrix:
    # -------new code for saving the matrix's to file-------
         for patient in self.get_patients():
             print(patient)
-            rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest")
-            film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film")
+            sec_per_sample = str(self.sec_per_sample)
+            if not os.path.isdir(op.join(rest_data_path)):
+                os.mkdir(op.join(rest_data_path))
+            if not os.path.isdir(op.join(film_data_path)):
+                os.mkdir(op.join(film_data_path))
+            rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest", sec_per_sample)
+            film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film", sec_per_sample)
 
             rest_matrix_list.create_matrix_list()
             film_matrix_list.create_matrix_list()
-            if rest_matrix_list.matrix_list is not None or film_matrix_list.matrix_list is not None:
-                rest_matrix_list = np.array(rest_matrix_list.get_matrix_list(), dtype=float)
-                film_matrix_list = np.array(film_matrix_list.get_matrix_list(), dtype=float)
-                for key in freq_dict:
-                    lower_bound = freq_dict[key][0]
-                    upper_bound = freq_dict[key][1]
-                    np.savez(op.join(rest_lists_path + key, patient + '_rest_matrixs.npz'),
-                             matrix_arr=np.mean(rest_matrix_list[:, :, lower_bound:upper_bound], axis=2),
-                             allow_pickle=True)
-                    np.savez(op.join(film_lists_path + key, patient + '_film_matrixs.npz'),
-                             matrix_arr=np.mean(film_matrix_list[:, :, lower_bound:upper_bound], axis=2),
-                             allow_pickle=True)
-            else:
-                print('No coherence')
+            if rest_matrix_list.matrix_list is None or film_matrix_list.matrix_list is None:
+                print('No ecog samples for this patient')
+                continue
+
+            rest_matrix_list = np.array(rest_matrix_list.get_matrix_list(), dtype=float)
+            film_matrix_list = np.array(film_matrix_list.get_matrix_list(), dtype=float)
+            for key in freq_dict:
+                rest_dir_path = op.join(rest_data_path, f'patient={patient}')
+                film_dir_path = op.join(film_data_path, f'patient={patient}')
+                if not os.path.isdir(rest_dir_path):
+                    os.mkdir(rest_dir_path)
+                if not os.path.isdir(film_dir_path):
+                    os.mkdir(film_dir_path)
+                lower_Bound = freq_dict[key][0]
+                upper_Bound = freq_dict[key][1]
+                np.savez(op.join(rest_dir_path, f'patient={patient},freq={key},sec_per_sample={sec_per_sample}.npz'),
+                         matrix_arr=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
+                np.savez(op.join(film_dir_path, f'patient={patient},freq={key},sec_per_sample={sec_per_sample}.npz'),
+                         matrix_arr=np.mean(film_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
     def get_rest_matrix_list(self):
         return self.all_rest_matrix
 

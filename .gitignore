@@ -41,3 +41,5 @@ readme.txt
 *.pyc
 *.iml
 *.xml
+*.pyc
+testing stuff.py

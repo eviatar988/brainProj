@@ -8,6 +8,7 @@ import io
 from mne_bids import (BIDSPath, read_raw_bids, print_dir_tree, make_report, get_entity_vals)
 import scipy
 from tqdm import tqdm
+import typing
 
 # Ignore RuntimeWarnings
 
@@ -51,9 +52,10 @@ def get_bids_path(bids_root, sub, task):
 
 class CoherenceMatrix:
 
-    def __init__(self, bids_root, sub_tag, task):
+    def __init__(self, bids_root: str, sub_tag: str, task: str, sec_per_sample: int):
         self.bids_path = get_bids_path(bids_root, sub_tag, task)
         self.sample_freq = -1
+        self.sec_per_sample = int(sec_per_sample)
         self.channels = None
         self.handle_channels()
         self.matrix_list = None
@@ -91,14 +93,16 @@ class CoherenceMatrix:
 
     # channels = raw.pick(picks='ecog' , exclude='bads')
 
-    def coherence_calc(self, index1, index2, sec):
+    def coherence_calc(self, index1: int, index2: int, sec: int):
         if self.channels is None:
             return
         freq = int(self.sample_freq)
-        time_bound = sec*freq
+        lower_bound = int(sec*freq*self.sec_per_sample)
+        upper_bound = int(lower_bound + freq*self.sec_per_sample)
         channel1 = self.channels[index1]
         channel2 = self.channels[index2]
-        f, coherence = scipy.signal.coherence(channel1[time_bound:time_bound+freq], channel2[time_bound:time_bound+freq]
+        f, coherence = scipy.signal.coherence(channel1[lower_bound:upper_bound],
+                                              channel2[lower_bound:upper_bound+freq]
                                               , fs=self.sample_freq, nperseg=self.sample_freq / 2)
         return coherence
 
@@ -112,11 +116,10 @@ class CoherenceMatrix:
         return matrix
 
     def create_matrix_list(self):
-        print('creating matrixs')
         if self.channels is None:
             return
         time = int(len(self.channels[0])) / self.sample_freq
-        time = int(time / 1)
+        time = int(time / self.sec_per_sample)
         matrix_list = []
         for sec in tqdm(range(time)):  # remove after testing
             matrix_list.append(self.create_matrix(sec))

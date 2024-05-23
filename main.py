@@ -50,13 +50,10 @@ def show_me_matrix(matrix_flat, name):
 
 def main():
 
-    """bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    patient_m = PatientsMatrix(bids_root, "low_gamma")
-    patient_m.save_matrix_to_file()"""
-    loaded_file = np.load(op.join(film_lists_path+'alpha', '02_film_matrixs.npz'))
-    data = loaded_file['arr_rest']
-    print(data.shape)
-    show_me_matrix(data[0],1)
+    bids_root = op.join(op.dirname(sample.data_path()), dataset)
+    patient_m = PatientsMatrix(bids_root, 3)
+    patient_m.save_matrix_to_file()
+
 
 
 if __name__ == '__main__':
