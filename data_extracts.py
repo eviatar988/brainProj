@@ -10,6 +10,7 @@ import numpy as np
 from scipy.stats import levene, gaussian_kde
 from scipy.stats import anderson
 import scipy.stats as stats
+import patients_matrix
 
 # %%
 rest_lists_path = 'rest_lists'
@@ -17,10 +18,12 @@ film_lists_path = 'film_lists'
 
 
 
+
+
 # %%
 def read_file_rest (file, rest_path):
      loaded_file = np.load(op.join(rest_path,file))
-     data = loaded_file['arr_rest']
+     data = loaded_file['matrix_arr']
      
      '''print(data[:,np.argsort(data,axis=1)[-5:]].shape)
      return data[:,np.argsort(data,axis=1)[-5:]]'''"testing stuff.py"
@@ -30,9 +33,9 @@ def read_file_rest (file, rest_path):
      
 
 # %%
-def read_file_film (file, rest_path):
-     loaded_file = np.load(op.join(rest_path,file))
-     data = loaded_file['arr_film']
+def read_file(path, file):
+     loaded_file = np.load(op.join(path,file))
+     data = loaded_file['matrix_arr']
      
      '''print(data[:,np.argsort(data,axis=1)[-5:]].shape)
      return data[:,np.argsort(data,axis=1)[-5:]]'''"testing stuff.py"
@@ -42,22 +45,29 @@ def read_file_film (file, rest_path):
      
 
 # %%
+
+
+
+
 def data_trasnform(freq_type_film, freq_type_rest):
-    rest_path = rest_lists_path+freq_type_rest
-    rest_files = os.listdir(rest_path)
-    print(rest_files)
-    
-    film_path = film_lists_path+freq_type_film
-    film_files = os.listdir(film_path)
-    print(film_files)
-    
-    rest_data = read_file_rest(rest_files[0], rest_path)
-    for i in range(1,len(rest_files)):  
-        temp = read_file_rest(rest_files[i], rest_path)
+
+
+    rest_path = 'rest_data'
+    patients = os.listdir(rest_path)
+
+    film_path = 'film_data'
+
+    rest_data = read_file(op.join(rest_path, patients[0]),
+                               f'{patients[0]},freq={freq_type_rest},sec_per_sample={3}.npz')
+    film_data = read_file(op.join(film_path, patients[0]),
+                          f'{patients[0]},freq={freq_type_rest},sec_per_sample={3}.npz')
+    for i in range(1,len(patients)):
+        temp = read_file(op.join(rest_path, patients[i]),
+                               f'{patients[i]},freq={freq_type_rest},sec_per_sample={3}.npz')
         rest_data = np.append(rest_data, temp, axis=0)
-    film_data = read_file_film(film_files[0], film_path)
-    for i in range(1,len(film_files)):  
-        temp = read_file_film(film_files[i], film_path)
+
+        temp = read_file(op.join(film_path, patients[i]),
+                               f'{patients[i]},freq={freq_type_rest},sec_per_sample={3}.npz')
         film_data = np.append(film_data, temp, axis=0)
         
     return rest_data, film_data

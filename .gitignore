@@ -35,11 +35,15 @@ readme.txt
 /film_lists/30_film_matrixs.npz
 /film_lists/31_film_matrixs.npz
 /film_lists/32_film_matrixs.npz
-/film_lists/
-/rest_lists/
+/film_data/
+/rest_data/
 *.pyc
 *.pyc
 *.iml
 *.xml
 *.pyc
 testing stuff.py
+.idea/brainProj.iml
+*.xml
+*.iml
+*.iml
