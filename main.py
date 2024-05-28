@@ -1,5 +1,7 @@
 import math
 import os.path as op
+
+import mne_bids
 from mne.datasets import sample
 from patients_matrix import PatientsMatrix
 from coherence_matrix import CoherenceMatrix
@@ -52,10 +54,13 @@ def readfile(task ,patient, freq, sec_per_sample):
     data = np.load(op.join(task_dir_path, f'patient={patient},freq={freq},sec_per_sample={sec_per_sample}.npz'))
     return data['matrix_arr']
 
+def get_bidsroot():
+    return op.join(op.dirname(sample.data_path()), dataset)
+
 def main():
 
-    bids_root = op.join(op.dirname(sample.data_path()), dataset)
-    patient_m = PatientsMatrix(bids_root, 3)
+    bids_root = get_bidsroot()
+    patient_m = PatientsMatrix(bids_root, 1)
     patient_m.save_matrix_to_file()
 
 

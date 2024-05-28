@@ -47,3 +47,5 @@ testing stuff.py
 *.xml
 *.iml
 *.iml
+*.xml
+main.py

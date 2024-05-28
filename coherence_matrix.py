@@ -103,7 +103,11 @@ class CoherenceMatrix:
         channel2 = self.channels[index2]
         f, coherence = scipy.signal.coherence(channel1[lower_bound:upper_bound],
                                               channel2[lower_bound:upper_bound]
-                                              , fs=self.sample_freq, nperseg=self.sample_freq* self.sec_per_sample / 2)
+                                              , fs=self.sample_freq, nperseg=self.sample_freq)#* self.sec_per_sample / 2)
+        print(f'f.shape = {f.shape}')
+        print(f'coherence.shape = {coherence.shape}' )
+        print(f'freq = {self.sample_freq}')
+        print(f'sec ={self.sec_per_sample}')
         return coherence
 
     # creating coherence matrix between each channel ( for each second)
