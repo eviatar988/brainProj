@@ -78,9 +78,10 @@ class PatientsMatrix:
                 os.mkdir(op.join(film_data_path))
             rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest", self.sec_per_sample)
             film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film", self.sec_per_sample)
-
             rest_matrix_list.create_matrix_list()
             film_matrix_list.create_matrix_list()
+
+
             if rest_matrix_list.matrix_list is None or film_matrix_list.matrix_list is None:
                 print('No ecog samples for this patient')
                 continue
