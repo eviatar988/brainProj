@@ -57,15 +57,15 @@ def data_trasnform(freq_type_film, freq_type_rest):
     rest_data = read_file_rest(op.join(rest_path, patients[0]),
                                f'{patients[0]},freq={freq_type_rest},sec_per_sample={3}.npz')
     film_data = read_file_film(op.join(film_path, patients[0]),
-                          f'{patients[0]},freq={freq_type_rest},sec_per_sample={3}.npz')
-    for i in range(1,len(patients)):
+                          f'{patients[0]},freq={freq_type_film},sec_per_sample={3}.npz')
+    """for i in range(1,len(patients)):
         temp = read_file_rest(op.join(rest_path, patients[i]),
                                f'{patients[i]},freq={freq_type_rest},sec_per_sample={3}.npz')
         rest_data = np.append(rest_data, temp, axis=0)
 
         temp = read_file_film(op.join(film_path, patients[i]),
-                               f'{patients[i]},freq={freq_type_rest},sec_per_sample={3}.npz')
-        film_data = np.append(film_data, temp, axis=0)
+                               f'{patients[i]},freq={freq_type_film},sec_per_sample={3}.npz')
+        film_data = np.append(film_data, temp, axis=0)"""
         
     return rest_data, film_data
     
