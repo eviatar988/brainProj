@@ -16,7 +16,7 @@ import typing
 import data_extracts
 
 X = data_extracts.data_trasnform('low_gamma', 'low_gamma')
-X = np.append[X[1][:X[0].sha]]
+X = np.append[X[1][:X[0].shape]]
 y = np.zeros(X[0].shape[0]*2)
 x0shape = X[0].shape[0]
 y[:X[0].shape[0]] = 1

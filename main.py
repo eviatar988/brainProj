@@ -3,6 +3,7 @@ import os.path as op
 
 import mne_bids
 from mne.datasets import sample
+import data_extracts
 from patients_matrix import PatientsMatrix
 from coherence_matrix import CoherenceMatrix
 from matplotlib import pyplot as plt
@@ -10,6 +11,7 @@ import numpy as np
 from scipy.stats import levene, gaussian_kde
 from scipy.stats import anderson
 import scipy.stats as stats
+import test1
 
 bids_path = r"C:\Users\eyala\Documents\GitHub\brainProj\ds003688"
 dataset = "ds003688"
@@ -49,7 +51,7 @@ def show_me_matrix(matrix_flat, name):
     plt.show()
 
 
-def readfile(task ,patient, freq, sec_per_sample):
+def readfile(task, patient, freq, sec_per_sample):
     task_dir_path = op.join(f'{task}_data' ,f'patient={patient}')
     data = np.load(op.join(task_dir_path, f'patient={patient},freq={freq},sec_per_sample={sec_per_sample}.npz'))
     return data['matrix_arr']
@@ -57,11 +59,14 @@ def readfile(task ,patient, freq, sec_per_sample):
 def get_bidsroot():
     return op.join(op.dirname(sample.data_path()), dataset)
 
-def main():
 
-    bids_root = get_bidsroot()
-    patient_m = PatientsMatrix(bids_root, 1)
-    patient_m.save_matrix_to_file()
+def create_data():
+        bids_root = get_bidsroot()
+        patient_m = PatientsMatrix(bids_root, 1)
+        patient_m.save_matrix_to_file()
+
+def main():
+    test1.random_forest_all(data_extracts.read_file_rest_max, data_extracts.read_file_film_max)
 
 
 

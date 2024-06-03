@@ -13,12 +13,12 @@ save_filename = 'coherence_matrixs.npz'
 rest_data_path = 'rest_data'
 film_data_path = 'film_data'
 freq_dict = {
-    'delta': (1, 4),
-    'theta': (4, 8),
-    'alpha': (8, 12),
-    'beta': (12, 30),
-    'low_gamma': (30, 70),
-    'high_gamma': (70, 250)
+    'delta': (1, 3),
+    'theta': (3, 5),
+    'alpha': (5, 7),
+    'beta': (7, 16),
+    'low_gamma': (16, 36),
+    'high_gamma': (36, 126)
 }
 
 class PatientsMatrix:
@@ -76,18 +76,17 @@ class PatientsMatrix:
                 os.mkdir(op.join(rest_data_path))
             if not os.path.isdir(op.join(film_data_path)):
                 os.mkdir(op.join(film_data_path))
-            rest_matrix_list = CoherenceMatrix(self.bids_root, patient, "rest", self.sec_per_sample)
-            film_matrix_list = CoherenceMatrix(self.bids_root, patient, "film", self.sec_per_sample)
-            rest_matrix_list.create_matrix_list()
-            film_matrix_list.create_matrix_list()
+            coherence_matrix = CoherenceMatrix()
+            rest_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient, "rest", self.sec_per_sample)
+            film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient, "film", self.sec_per_sample)
 
 
-            if rest_matrix_list.matrix_list is None or film_matrix_list.matrix_list is None:
+            if rest_matrix_list is None or film_matrix_list is None:
                 print('No ecog samples for this patient')
                 continue
 
-            rest_matrix_list = np.array(rest_matrix_list.get_matrix_list(), dtype=float)
-            film_matrix_list = np.array(film_matrix_list.get_matrix_list(), dtype=float)
+            rest_matrix_list = np.array(rest_matrix_list, dtype=float)
+            film_matrix_list = np.array(film_matrix_list, dtype=float)
             for key in freq_dict:
                 rest_dir_path = op.join(rest_data_path, f'patient={patient}')
                 film_dir_path = op.join(film_data_path, f'patient={patient}')

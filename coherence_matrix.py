@@ -52,12 +52,11 @@ def get_bids_path(bids_root, sub, task):
 
 class CoherenceMatrix:
 
-    def __init__(self, bids_root: str, sub_tag: str, task: str, sec_per_sample: int):
-        self.bids_path = get_bids_path(bids_root, sub_tag, task)
+    def __init__(self):
+        self.bids_path = None
         self.sample_freq = -1
-        self.sec_per_sample = int(sec_per_sample)
+        self.sec_per_sample = None
         self.channels = None
-        self.handle_channels()
         self.matrix_list = None
 
     def get_matrix_list(self):
@@ -103,11 +102,7 @@ class CoherenceMatrix:
         channel2 = self.channels[index2]
         f, coherence = scipy.signal.coherence(channel1[lower_bound:upper_bound],
                                               channel2[lower_bound:upper_bound]
-                                              , fs=self.sample_freq, nperseg=self.sample_freq)#* self.sec_per_sample / 2)
-        print(f'f.shape = {f.shape}')
-        print(f'coherence.shape = {coherence.shape}' )
-        print(f'freq = {self.sample_freq}')
-        print(f'sec ={self.sec_per_sample}')
+                                              , fs=self.sample_freq, nperseg=self.sample_freq/2)#* self.sec_per_sample / 2)
         return coherence
 
     # creating coherence matrix between each channel ( for each second)
@@ -119,12 +114,15 @@ class CoherenceMatrix:
                 matrix.append(self.coherence_calc(row, col, sec))
         return matrix
 
-    def create_matrix_list(self):
+    def create_matrix_list(self, bids_root: str, sub_tag: str, task: str, sec_per_sample: int):
+        self.bids_path = get_bids_path(bids_root, sub_tag, task)
+        self.sec_per_sample = int(sec_per_sample)
+        self.handle_channels()
         if self.channels is None:
-            return
+            return None
         time = int(len(self.channels[0])) / self.sample_freq
         time = int(time / self.sec_per_sample)
         matrix_list = []
         for sec in tqdm(range(time)):  # remove after testing
             matrix_list.append(self.create_matrix(sec))
-        self.matrix_list = matrix_list
+        return matrix_list

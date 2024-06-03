@@ -49,3 +49,5 @@ testing stuff.py
 *.iml
 *.xml
 main.py
+*.pyc
+*.xml
