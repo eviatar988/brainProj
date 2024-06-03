@@ -1,6 +1,5 @@
 import math
 import os.path as op
-
 import mne_bids
 from mne.datasets import sample
 import data_extracts
@@ -45,7 +44,8 @@ def show_me_matrix(matrix_flat, name):
                 matrix[i, j] = matrix_flat[index]
                 matrix[j, i] = matrix_flat[index]
                 index += 1
-    plt.imshow(matrix, cmap='viridis')
+    temp = matrix.reshape(20, 20)
+    plt.imshow(temp, cmap='viridis')
     plt.title(name)
     plt.colorbar()
     plt.show()
@@ -66,7 +66,40 @@ def create_data():
         patient_m.save_matrix_to_file()
 
 def main():
-    test1.random_forest_all(data_extracts.read_file_rest_max, data_extracts.read_file_film_max)
+    avg = np.zeros((44, 6))
+    print('svm single, 100 highest')
+    for index in range(44):
+        avg[index] = test1.svm_single(index, data_extracts.read_file_rest_max, data_extracts.read_file_film_max)
+        print(f'patient: {index}:', avg[index])
+    print("avg =",np.mean(avg,axis=0))
+    print('svm all, 100 highest')
+    print(test1.svm_all(data_extracts.read_file_rest_max, data_extracts.read_file_film_max))
+    print('RT single, 100 highest')
+    for index in range(44):
+        avg[index] = test1.random_forest_single(index, data_extracts.read_file_rest_max, data_extracts.read_file_film_max)
+        print(f'patient: {index}:', avg[index])
+
+    print("avg =", np.mean(avg, axis=0))
+    print('svm all, 100 highest')
+    print(test1.random_forest_all(data_extracts.read_file_rest_max, data_extracts.read_file_film_max))
+
+
+
+    print('svm single, features')
+    for index in range(44):
+        avg[index] = test1.svm_single(index, data_extracts.feature_extract_rest, data_extracts.feature_extract_film)
+        print(f'patient: {index}:', avg[index])
+    print("avg =", np.mean(avg, axis=0))
+    print('svm all, 100 highest')
+    print(test1.svm_all(data_extracts.feature_extract_rest, data_extracts.feature_extract_film))
+    print('RT single, 100 highest')
+    for index in range(44):
+        avg[index] = test1.random_forest_single(index, data_extracts.feature_extract_rest, data_extracts.feature_extract_film)
+        print(f'patient: {index}:', avg[index])
+    print("avg =", np.mean(avg, axis=0))
+    print('svm all, 100 highest')
+    print(test1.random_forest_all(data_extracts.feature_extract_rest, data_extracts.feature_extract_film))
+
 
 
 

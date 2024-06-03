@@ -20,7 +20,7 @@ def data_split(data):
     y = np.zeros(rest_shape * 2)
     y[:rest_shape] = 1
     # Split data into training and testing sets (80% training, 20% testing)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=24)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
 
 
@@ -30,7 +30,6 @@ def random_forest_all(rest_func, film_func):
         data = data_extracts.data_trasnform(freq, freq, 0, 44, rest_func, film_func)
         X_train, X_test, y_train, y_test = data_split(data)
         predictions.append(ml_algorithms.random_forest(X_train, X_test, y_train, y_test))
-    print(predictions)
     return predictions
 
 def random_forest_single(index, rest_func , film_func):
@@ -39,7 +38,7 @@ def random_forest_single(index, rest_func , film_func):
         data = data_extracts.data_trasnform(freq, freq, index, index, rest_func, film_func)
         X_train, X_test, y_train, y_test = data_split(data)
         predictions.append(ml_algorithms.random_forest(X_train, X_test, y_train, y_test))
-    print(predictions)
+    return predictions
 
 def svm_single(index, rest_func , film_func):
     predictions = []
@@ -47,13 +46,12 @@ def svm_single(index, rest_func , film_func):
         data = data_extracts.data_trasnform(freq, freq, index, index, rest_func, film_func)
         X_train, X_test, y_train, y_test = data_split(data)
         predictions.append(ml_algorithms.svm_classifier(X_train, X_test, y_train, y_test))
-    print(predictions)
+    return predictions
 
 def svm_all(rest_func , film_func):
     predictions = []
     for freq in freq_dict.keys():
-        print(freq)
         data = data_extracts.data_trasnform(freq, freq, 0, 44, rest_func, film_func)
         X_train, X_test, y_train, y_test = data_split(data)
         predictions.append(ml_algorithms.svm_classifier(X_train, X_test, y_train, y_test))
-    print(predictions)
+    return predictions

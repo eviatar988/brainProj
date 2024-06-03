@@ -20,14 +20,12 @@ def random_forest(x_train, x_test ,y_train, y_test):
     model = RandomForestClassifier(n_estimators=100, max_depth=3)
     model.fit(x_train, y_train)
     prediction = model.predict(x_test)
-    print(prediction)
     accuracy = accuracy_score(y_test, prediction)
-    print(f"Accuracy: {accuracy:.4f}")
     return round(accuracy, 4)
 
 
 def svm_classifier(x_train, x_test,y_train, y_test):
-    svm_rbf = SVC(kernel='rbf', gamma='scale', C=1)
+    svm_rbf = SVC(kernel='rbf', gamma='scale')
     svm_rbf.fit(x_train, y_train)
     y_pred = svm_rbf.predict(x_test)
     # Evaluate the classifier

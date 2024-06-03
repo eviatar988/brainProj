@@ -39,8 +39,42 @@ def read_file_film_max(path, file):
 
 
 
+def read_file_rest_random(path, file):
+    loaded_file = np.load(op.join(path, file))
+    data = loaded_file['matrix_arr']
+    num_random_columns = 100
+    # Randomly select column indices
+    random_column_indices = np.random.choice(data.shape[1], num_random_columns, replace=False)
+    # Extract random columns
+    return data[:, random_column_indices]
+
 def read_file_film_random(path, file):
-    return 1
+    loaded_file = np.load(op.join(path, file))
+    data = loaded_file['matrix_arr']
+    num_random_columns = 100
+    # Randomly select column indices
+    random_column_indices = np.random.choice(data.shape[1], num_random_columns, replace=False)
+    temp = data[:, random_column_indices]
+    # Extract random columns
+    return temp[range(0, data.shape[0], 2), :]
+
+
+def feature_extract_rest(path, file):
+    loaded_file = np.load(op.join(path, file))
+    data = loaded_file['matrix_arr']
+    features = np.zeros((data.shape[0], 4))
+    for i in range(data.shape[0]):
+        features[i, :] = [np.mean(data[i]), np.std(data[i]), np.min(data[i]), np.max(data[i])]
+    return features
+
+
+def feature_extract_film(path, file):
+    loaded_file = np.load(op.join(path, file))
+    data = loaded_file['matrix_arr']
+    features = np.zeros((int(data.shape[0]/2), 4))
+    for i in range(0, int(data.shape[0]/2)):
+        features[i, :] = [np.mean(data[i*2]), np.std(data[i*2]), np.min(data[i*2]), np.max(data[i*2])]
+    return features
 
 def data_trasnform(freq_type_rest, freq_type_film ,first_p, last_p, rest_func, film_func):
     rest_path = 'rest_data'
