@@ -67,20 +67,20 @@ def create_data():
 
 def main():
     avg = np.zeros((44, 6))
-    print('svm single, 100 highest')
+    """print('svm single, 100 highest')
     for index in range(44):
         avg[index] = test1.svm_single(index, data_extracts.read_file_rest_max, data_extracts.read_file_film_max)
         print(f'patient: {index}:', avg[index])
     print("avg =",np.mean(avg,axis=0))
     print('svm all, 100 highest')
     print(test1.svm_all(data_extracts.read_file_rest_max, data_extracts.read_file_film_max))
-    print('RT single, 100 highest')
+    print('Rf single, 100 highest')
     for index in range(44):
         avg[index] = test1.random_forest_single(index, data_extracts.read_file_rest_max, data_extracts.read_file_film_max)
         print(f'patient: {index}:', avg[index])
 
     print("avg =", np.mean(avg, axis=0))
-    print('svm all, 100 highest')
+    print('RF all, 100 highest')
     print(test1.random_forest_all(data_extracts.read_file_rest_max, data_extracts.read_file_film_max))
 
 
@@ -90,15 +90,50 @@ def main():
         avg[index] = test1.svm_single(index, data_extracts.feature_extract_rest, data_extracts.feature_extract_film)
         print(f'patient: {index}:', avg[index])
     print("avg =", np.mean(avg, axis=0))
-    print('svm all, 100 highest')
+    print('svm all, features')
     print(test1.svm_all(data_extracts.feature_extract_rest, data_extracts.feature_extract_film))
-    print('RT single, 100 highest')
+    print('RT single, features')
     for index in range(44):
         avg[index] = test1.random_forest_single(index, data_extracts.feature_extract_rest, data_extracts.feature_extract_film)
         print(f'patient: {index}:', avg[index])
     print("avg =", np.mean(avg, axis=0))
-    print('svm all, 100 highest')
+    print('RN all, features')
     print(test1.random_forest_all(data_extracts.feature_extract_rest, data_extracts.feature_extract_film))
+
+    print('svm single, last_elements')
+    for index in range(44):
+        avg[index] = test1.svm_single(index, data_extracts.last_elements_rest, data_extracts.last_elemets_film)
+        print(f'patient: {index}:', avg[index])
+    print("avg =", np.mean(avg, axis=0))
+    print('svm all, last_elements')
+    print(test1.svm_all(data_extracts.last_elements_rest, data_extracts.last_elemets_film))
+    print('RT single, last_elementss')
+    for index in range(44):
+        avg[index] = test1.random_forest_single(index, data_extracts.last_elements_rest, data_extracts.last_elemets_film)
+        print(f'patient: {index}:', avg[index])
+    print("avg =", np.mean(avg, axis=0))
+    print('svm all, last_elements')
+    print(test1.random_forest_all(data_extracts.last_elements_rest, data_extracts.last_elemets_film))
+    """
+    data = data_extracts.data_trasnform('low_gamma', 'low_gamma', 0, 0, data_extracts.load_data
+                                 , data_extracts.load_data)
+    rest_data = data[0]
+    film_data = data[1]
+    print(rest_data.shape)
+    print(film_data.shape)
+    rest_data = np.mean(rest_data, axis=0)
+    sorted_indices = np.argsort(rest_data)
+    print(rest_data[sorted_indices[-20:]])
+    print(sorted_indices[-20:])
+
+
+    film_data = np.mean(film_data, axis=0)
+    sorted_indices = np.argsort(film_data)
+    print(film_data[sorted_indices[-20:]])
+    print(sorted_indices[-20:])
+    print(rest_data[sorted_indices[-20:]])
+    print(np.max)
+
 
 
 
