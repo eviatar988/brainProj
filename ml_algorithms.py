@@ -15,7 +15,6 @@ import scipy.stats as stats
 from sklearn.ensemble import RandomForestClassifier
 
 
-
 def random_forest(x_train, x_test ,y_train, y_test):
     model = RandomForestClassifier(n_estimators=100, max_depth=3)
     model.fit(x_train, y_train)

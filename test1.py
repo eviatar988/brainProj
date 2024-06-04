@@ -14,9 +14,9 @@ freq_dict = {
 }
 
 
-def data_split(data):
-    rest_shape = data[0].shape[0]
-    X = np.append(data[1][:rest_shape], data[0], axis=0)
+def data_split(rest_data , film_data):
+    rest_shape = rest_data.shape[0]
+    X = np.append(film_data, rest_data, axis=0)
     y = np.zeros(rest_shape * 2)
     y[:rest_shape] = 1
     # Split data into training and testing sets (80% training, 20% testing)
@@ -25,9 +25,10 @@ def data_split(data):
 
 
 def random_forest_all(rest_func, film_func):
+    bounds = (0, 43)
     predictions = []
     for freq in freq_dict.keys():
-        data = data_extracts.data_trasnform(freq, freq, 0, 43, rest_func, film_func)
+        data = data_extracts.data_trasnform(freq, freq, bounds)
         X_train, X_test, y_train, y_test = data_split(data)
         predictions.append(ml_algorithms.random_forest(X_train, X_test, y_train, y_test))
     return predictions
