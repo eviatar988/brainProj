@@ -52,3 +52,7 @@ main.py
 *.pyc
 *.xml
 *.xml
+*.pyc
+*.pyc
+*.xml
+*.iml

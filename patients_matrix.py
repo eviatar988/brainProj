@@ -1,3 +1,5 @@
+import multiprocessing
+
 import numpy as np
 import pandas as pd
 import os
@@ -64,42 +66,41 @@ class PatientsMatrix:
                 flat_matrix.append(matrix[i, j])
 
 
+    def patient_thread(self,patient):
+        if not os.path.isdir(op.join(rest_data_path)):
+            os.mkdir(op.join(rest_data_path))
+        if not os.path.isdir(op.join(film_data_path)):
+            os.mkdir(op.join(film_data_path))
+        coherence_matrix = CoherenceMatrix()
+        rest_matrix_list, film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient)
+
+        if rest_matrix_list is None or film_matrix_list is None:
+            print('No ecog samples for this patient')
+            return
+
+        rest_matrix_list = np.array(rest_matrix_list, dtype=float)
+        film_matrix_list = np.array(film_matrix_list, dtype=float)
+        print(rest_matrix_list.shape, film_matrix_list.shape)
+        for key in freq_dict:
+            rest_dir_path = op.join(rest_data_path, f'patient={patient}')
+            film_dir_path = op.join(film_data_path, f'patient={patient}')
+            if not os.path.isdir(rest_dir_path):
+                os.mkdir(rest_dir_path)
+            if not os.path.isdir(film_dir_path):
+                os.mkdir(film_dir_path)
+            lower_Bound = freq_dict[key][0]
+            upper_Bound = freq_dict[key][1]
+            np.savez(op.join(rest_dir_path, f'patient={patient},task=rest,freq={key}.npz'),
+                     matrix_arr=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
+            np.savez(op.join(film_dir_path, f'patient={patient},task=film,freq={key}.npz'),
+                     matrix_arr=np.mean(film_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
+            print(patient,' complete')
     def save_matrix_to_file(self):
-        """np.savez(save_filename, arr_rest=np.array(self.all_rest_matrix, dtype=object),
-                 arr_film=np.array(self.all_rest_matrix, dtype=object), allow_pickle=True)"""
 
-   # -------new code for saving the matrix's to file-------
-        for patient in self.get_patients():
-            print(patient)
-            sec_per_sample = str(self.sec_per_sample)
-            if not os.path.isdir(op.join(rest_data_path)):
-                os.mkdir(op.join(rest_data_path))
-            if not os.path.isdir(op.join(film_data_path)):
-                os.mkdir(op.join(film_data_path))
-            coherence_matrix = CoherenceMatrix()
-            rest_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient, "rest", self.sec_per_sample)
-            film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient, "film", self.sec_per_sample)
+        proc_arr = []
+        for i in self.get_patients()[52:]:
+            self.patient_thread(i)
 
-
-            if rest_matrix_list is None or film_matrix_list is None:
-                print('No ecog samples for this patient')
-                continue
-
-            rest_matrix_list = np.array(rest_matrix_list, dtype=float)
-            film_matrix_list = np.array(film_matrix_list, dtype=float)
-            for key in freq_dict:
-                rest_dir_path = op.join(rest_data_path, f'patient={patient}')
-                film_dir_path = op.join(film_data_path, f'patient={patient}')
-                if not os.path.isdir(rest_dir_path):
-                    os.mkdir(rest_dir_path)
-                if not os.path.isdir(film_dir_path):
-                    os.mkdir(film_dir_path)
-                lower_Bound = freq_dict[key][0]
-                upper_Bound = freq_dict[key][1]
-                np.savez(op.join(rest_dir_path, f'patient={patient},freq={key},sec_per_sample={sec_per_sample}.npz'),
-                         matrix_arr=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
-                np.savez(op.join(film_dir_path, f'patient={patient},freq={key},sec_per_sample={sec_per_sample}.npz'),
-                         matrix_arr=np.mean(film_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
     def get_rest_matrix_list(self):
         return self.all_rest_matrix
 
