@@ -46,8 +46,8 @@ def read_file_max(rest_path, film_path , rest_file , film_file):
 
 
 #return random values from rest and film
-def read_file_random(rest_path, film_path, file):
-    rest_data,film_data = data_fit(rest_path, film_path, file)
+def read_file_random(rest_path, film_path, rest_file, film_file):
+    rest_data,film_data = data_fit(rest_path, film_path, rest_file, film_file)
     num_random_columns = 100
     # Randomly select column indices
     random_column_indices = np.random.choice(rest_data.shape[1], num_random_columns, replace=False)
@@ -86,6 +86,12 @@ def feature_extract(rest_path, film_path, rest_file, film_file):
 
 # calculate the max indices of the mean of rest and film data, return the data in those indices
 
+def max_diffrence_indices(rest_path, film_path, rest_file, film_file):
+    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
+    rest_mean = np.mean(rest_data, axis=0)
+    film_mean = np.mean(film_data, axis=0)
+    indices = np.argsort(film_mean - rest_mean)[-40:]
+    return rest_data[:, indices], film_data[:, indices]
 
 def max_indices(rest_path, film_path, rest_file, film_file):
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
@@ -110,7 +116,7 @@ def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
     film_path = op.join(film_path, patients[first_p])
 
     rest_file = f'{patients[first_p]},task=rest,freq={freq_type_rest}.npz'
-    film_file =  f'{patients[first_p]},task=film,freq={freq_type_rest}.npz'
+    film_file =  f'{patients[first_p]},task=film,freq={freq_type_film}.npz'
     rest_data, film_data = extract_func(rest_path, film_path, rest_file, film_file)
 
     for i in range(first_p+1,last_p+1):
@@ -119,8 +125,8 @@ def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
         film_path = op.join(film_path, patients[i])
 
         rest_file = f'{patients[i]},task=rest,freq={freq_type_rest}.npz'
-        film_file = f'{patients[i]},task=film,freq={freq_type_rest}.npz'
-        temp_rest, temp_film = rest_data, film_data = extract_func(rest_path,film_path,rest_file,film_file)
+        film_file = f'{patients[i]},task=film,freq={freq_type_film}.npz'
+        temp_rest, temp_film = rest_data, film_data = extract_func(rest_path, film_path, rest_file, film_file)
 
         rest_data = np.append(rest_data, temp_rest, axis=0)
 
