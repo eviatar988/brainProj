@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from sklearn.model_selection import train_test_split
 
@@ -20,7 +22,7 @@ def data_split(rest_data , film_data):
     y = np.zeros(rest_shape * 2)
     y[:rest_shape] = 1
     # Split data into training and testing sets (80% training, 20% testing)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44)
     return X_train, X_test, y_train, y_test
 
 
@@ -33,26 +35,32 @@ def random_forest_all(rest_func, film_func):
         predictions.append(ml_algorithms.random_forest(X_train, X_test, y_train, y_test))
     return predictions
 
-def random_forest_single(index, rest_func , film_func):
+def random_forest_single(index, func):
     predictions = []
     for freq in freq_dict.keys():
-        data = data_extracts.data_trasnform(freq, freq, index, index, rest_func, film_func)
-        X_train, X_test, y_train, y_test = data_split(data)
+        rest_data, film_data = data_extracts.data_extract(freq, freq, (index, index), func)
+        X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
         predictions.append(ml_algorithms.random_forest(X_train, X_test, y_train, y_test))
     return predictions
 
-def svm_single(index, rest_func , film_func):
+def svm_single(index, func):
     predictions = []
     for freq in freq_dict.keys():
-        data = data_extracts.data_trasnform(freq, freq, index, index, rest_func, film_func)
-        X_train, X_test, y_train, y_test = data_split(data)
+        rest_data, film_data = data_extracts.data_extract(freq, freq, (index,index), func)
+        X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
         predictions.append(ml_algorithms.svm_classifier(X_train, X_test, y_train, y_test))
     return predictions
 
-def svm_all(rest_func , film_func):
+def svm_all(func):
     predictions = []
     for freq in freq_dict.keys():
-        data = data_extracts.data_trasnform(freq, freq, 0, 43, rest_func, film_func)
-        X_train, X_test, y_train, y_test = data_split(data)
+        rest_data, film_data = data_extracts.data_extract(freq, freq, (0,44), func)
+        X_train, X_test, y_train, y_test = data_split(rest_data , film_data)
         predictions.append(ml_algorithms.svm_classifier(X_train, X_test, y_train, y_test))
     return predictions
+
+rest_path = 'rest_data'
+
+patients = os.listdir(rest_path)
+for index in range(len(patients)):
+    print(svm_single(index, data_extracts.max_indices))

@@ -98,7 +98,7 @@ class PatientsMatrix:
     def save_matrix_to_file(self):
 
         proc_arr = []
-        for i in self.get_patients()[52:]:
+        for i in self.get_patients()[48:49]:
             self.patient_thread(i)
 
     def get_rest_matrix_list(self):

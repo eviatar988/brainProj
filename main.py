@@ -1,9 +1,12 @@
 import math
+import os
 import os.path as op
 import mne_bids
+import scipy.stats
 from mne.datasets import sample
 import data_extracts
 import ml_algorithms
+import patients_matrix
 from patients_matrix import PatientsMatrix
 from coherence_matrix import CoherenceMatrix
 from matplotlib import pyplot as plt
@@ -11,6 +14,7 @@ import numpy as np
 from scipy.stats import levene, gaussian_kde
 from scipy.stats import anderson
 import scipy.stats as stats
+import seaborn as sns
 import test1
 
 bids_path = r"C:\Users\eyala\Documents\GitHub\brainProj\ds003688"
@@ -45,17 +49,18 @@ def show_me_matrix(matrix_flat, name):
                 matrix[i, j] = matrix_flat[index]
                 matrix[j, i] = matrix_flat[index]
                 index += 1
-    temp = matrix.reshape(20, 20)
-    plt.imshow(temp, cmap='viridis')
+
+    plt.imshow(matrix, cmap='viridis')
     plt.title(name)
     plt.colorbar()
     plt.show()
 
 
-def readfile(task, patient, freq, sec_per_sample):
+def readfile(task, patient, freq):
     task_dir_path = op.join(f'{task}_data' ,f'patient={patient}')
-    data = np.load(op.join(task_dir_path, f'patient={patient},freq={freq},sec_per_sample={sec_per_sample}.npz'))
+    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},freq={freq}.npz'))
     return data['matrix_arr']
+
 
 def get_bidsroot():
     return op.join(op.dirname(sample.data_path()), dataset)
@@ -67,16 +72,43 @@ def create_data():
         patient_m.save_matrix_to_file()
 
 def main():
-    for i in range(43):
-        try:
-            freq = []
-            for key in freq_dict.keys():
-                rest_data, film_data = data_extracts.data_extract(key, key, (i, i), 3, data_extracts.max_indices)
-                x_train, x_test, y_train, y_test = test1.data_split(rest_data, film_data)
-                freq.append(ml_algorithms.svm_classifier(x_train, x_test, y_train, y_test))
-            print(freq)
-        except:
-            print(i,'sucks')
+
+    rest_path = 'rest_data'
+    patients = os.listdir(rest_path)
+    film_path = 'film_data'
+
+    for freq in freq_dict.keys():
+        p_values = []
+        rest_avg = []
+        film_avg = []
+        for i, patient in enumerate(patients):
+            rest_data, film_data = data_extracts.data_extract(freq,freq,(i,i), data_extracts.max_indices)
+            rest_data = np.mean(rest_data,axis=0)
+            film_data = np.mean(film_data, axis=0)
+            print('rest: ',rest_data)
+            print('film: ',film_data)
+            stat, pvalue = stats.ttest_ind(rest_data, film_data)
+            p_values.append(pvalue)
+        print(np.argmax(p_values))
+        sns.boxplot(data=p_values)
+        plt.show()
+
+        """rest_avg.append(np.mean(readfile('rest', patient[-2:], freq),axis=0))
+        film_avg.append(np.mean(readfile('film', patient[-2:], freq),axis=0))"""
+
+
+    """ stat, pvalue = stats.ttest_ind(rest_avg, film_avg)
+        p_values.append(pvalue)
+    print(p_values)
+
+    plt.figure(figsize=(7,7))
+    plt.bar(list(freq_dict.keys()),p_values,)
+    plt.xlabel('Frequency type')
+    plt.ylabel('Pvalue')
+    plt.title('paired t-test result for mean value of coherence for each patient')
+    plt.show()"""
+
+
 
 
 

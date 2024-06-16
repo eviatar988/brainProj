@@ -16,7 +16,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 def random_forest(x_train, x_test ,y_train, y_test):
-    model = RandomForestClassifier(n_estimators=100, max_depth=3)
+    model = RandomForestClassifier(n_estimators=40, max_depth=2)
     model.fit(x_train, y_train)
     prediction = model.predict(x_test)
     accuracy = accuracy_score(y_test, prediction)

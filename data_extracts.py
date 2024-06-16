@@ -23,17 +23,17 @@ def load_data(path, file):
     return loaded_file['matrix_arr']
 
 #reshaping the film data to fit the rest data
-def data_fit(rest_path, film_path, file):
-    rest_data = load_data(rest_path, file)
+def data_fit(rest_path, film_path, rest_file, film_file):
+    rest_data = load_data(rest_path, rest_file)
     rest_shape = rest_data.shape[0]
-    film_data = load_data(film_path, file)
+    film_data = load_data(film_path, film_file)
     film_shape = film_data.shape[0]
     film_data = film_data[range(0, film_shape, 2)]
     return rest_data, film_data[:rest_shape]
 
 #return max values for rest and film
-def read_file_max(rest_path, film_path, file):
-    rest_data,film_data = data_fit(rest_path, film_path, file)
+def read_file_max(rest_path, film_path , rest_file , film_file):
+    rest_data,film_data = data_fit(rest_path, film_path, rest_file, film_file)
 
     return np.sort(rest_data, axis=1)[:, -100:], np.sort(film_data, axis=1)[:, -100:]
 
@@ -65,8 +65,8 @@ def read_file_random(rest_path, film_path, file):
     return temp[range(0, data.shape[0], 2), :]"""
 
 #return features from rest and film
-def feature_extract(rest_path, film_path, file):
-    rest_data, film_data = data_fit(rest_path, film_path, file)
+def feature_extract(rest_path, film_path, rest_file, film_file):
+    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_features = np.zeros((rest_data.shape[0], 4))
     for i in range(rest_data.shape[0]):
         rest_features[i, :] = [np.mean(rest_data[i]), np.std(rest_data[i]), np.min(rest_data[i]), np.max(rest_data[i])]
@@ -87,37 +87,40 @@ def feature_extract(rest_path, film_path, file):
 # calculate the max indices of the mean of rest and film data, return the data in those indices
 
 
-def max_indices(rest_path, film_path, file):
-    rest_data, film_data = data_fit(rest_path, film_path, file)
+def max_indices(rest_path, film_path, rest_file, film_file):
+    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_mean = np.mean(rest_data, axis=0)
     rest_indices = np.argsort(rest_mean)[-20:]
     film_mean = np.mean(film_data, axis=0)
     film_indices = np.argsort(film_mean)[-20:]
     indices = np.append(rest_indices, film_indices)
+    indices = film_indices
     return rest_data[:, indices], film_data[:, indices]
 
 
-def data_extract(freq_type_rest, freq_type_film, bounds, sec_per_sample ,extract_func):
+def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'
 
     first_p = bounds[0]
     last_p = bounds[1]
-    rest_dict_path = op.join(rest_path, patients[first_p])
+    rest_path = op.join(rest_path, patients[first_p])
 
-    film_dict_path = op.join(film_path, patients[first_p])
+    film_path = op.join(film_path, patients[first_p])
 
-    file_path = f'{patients[first_p]},freq={freq_type_rest},sec_per_sample={sec_per_sample}.npz'
-    rest_data, film_data = extract_func(rest_dict_path,film_dict_path,file_path)
+    rest_file = f'{patients[first_p]},task=rest,freq={freq_type_rest}.npz'
+    film_file =  f'{patients[first_p]},task=film,freq={freq_type_rest}.npz'
+    rest_data, film_data = extract_func(rest_path, film_path, rest_file, film_file)
 
     for i in range(first_p+1,last_p+1):
-        rest_dict_path = op.join(rest_path, patients[i])
+        rest_path = op.join(rest_path, patients[i])
 
-        film_dict_path = op.join(film_path, patients[i])
+        film_path = op.join(film_path, patients[i])
 
-        file_path = f'{patients[i]},freq={freq_type_rest},sec_per_sample={sec_per_sample}.npz'
-        temp_rest, temp_film = rest_data, film_data = extract_func(rest_dict_path,film_dict_path,file_path)
+        rest_file = f'{patients[i]},task=rest,freq={freq_type_rest}.npz'
+        film_file = f'{patients[i]},task=film,freq={freq_type_rest}.npz'
+        temp_rest, temp_film = rest_data, film_data = extract_func(rest_path,film_path,rest_file,film_file)
 
         rest_data = np.append(rest_data, temp_rest, axis=0)
 
