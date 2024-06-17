@@ -30,22 +30,9 @@ class PatientsMatrix:
         self.all_film_matrix = []  # list of all the film matrix
         self.all_rest_matrix = []  # list of all the rest matrix
         self.patients = self.get_patients()
-        '''for patient in patients:
-            self.add_patient(sub=patient)'''
-
-    """def add_patient(self, sub):  # add all the matrix's of the patient to the list
-        rest_matrix_list = CoherenceMatrix(self.bids_root, sub, "rest")
-        film_matrix_list = CoherenceMatrix(self.bids_root, sub, "film")
-
-        if rest_matrix_list.matrix_list is not None:
-            self.all_rest_matrix.extend(rest_matrix_list.get_matrix_list())
-
-        if film_matrix_list.matrix_list is not None:
-            self.all_film_matrix.extend(film_matrix_list.get_matrix_list())"""
 
     def get_patients(self): # get all the patients in the dataset
         patients_list = []
-
         participants_path = op.join(self.bids_root, 'participants.tsv')
 
         # read participants.tsv file
@@ -57,14 +44,6 @@ class PatientsMatrix:
             else:
                 patients_list.append(str(i))
         return patients_list
-
-
-    def flat_matrix(self, matrix):
-        flat_matrix = []
-        for i in range(matrix.shape[0]):
-            for j in range(i, matrix.shape[1]):
-                flat_matrix.append(matrix[i, j])
-
 
     def patient_thread(self,patient):
         if not os.path.isdir(op.join(rest_data_path)):
@@ -95,14 +74,9 @@ class PatientsMatrix:
             np.savez(op.join(film_dir_path, f'patient={patient},task=film,freq={key}.npz'),
                      matrix_arr=np.mean(film_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
             print(patient,' complete')
-    def save_matrix_to_file(self):
 
+    def save_matrix_to_file(self):
         proc_arr = []
-        for i in self.get_patients()[48:49]:
+        for i in self.get_patients():
             self.patient_thread(i)
 
-    def get_rest_matrix_list(self):
-        return self.all_rest_matrix
-
-    def get_film_matrix_list(self):
-        return self.all_film_matrix
