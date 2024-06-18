@@ -79,10 +79,31 @@ def main():
     film_path = 'film_data'
     print(len(patients))
 
+    acc_al = []
+    for freq in freq_dict.keys():
+        acc = test1.pred_single_frequency(ml_algorithms.svm_classifier, data_extracts.max_indices, freq)
+        print(np.mean(acc))
+        acc_al.append(acc)
 
+    plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
 
-    #cnn_pred = test1.pred_single_frequency(ml_algorithms.cnn, data_extracts.matrix_fit, 'high_gamma')
-    #print(cnn_pred)
+    plt.boxplot(acc_al, positions=[1, 2, 3, 4, 5, 6])  # Positions for the groups
+
+    # Optional: Add labels to x-axis
+    plt.xticks([1, 2, 3, 4, 5, 6], list(freq_dict.keys()))
+    plt.xlabel('Frequency ranges')
+    plt.ylabel('Accuracy')
+    plt.title('Boxplot Of Accuracies for single patient case,SVM')
+    plt.grid(True)
+
+    plt.show()
+
+    for freq in freq_dict.keys():
+        acc = test1.pred_all_frequencys(ml_algorithms.svm_classifier, data_extracts.max_indices_mean)
+        plt.boxplot(acc)
+        plt.title(f"{freq}")
+        plt.show()
+
 
 
 

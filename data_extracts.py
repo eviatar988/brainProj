@@ -11,17 +11,20 @@ from scipy.stats import levene, gaussian_kde
 from scipy.stats import anderson
 import scipy.stats as stats
 import patients_matrix
-import cv2
 
 # %%
 rest_lists_path = 'rest_lists'
 film_lists_path = 'film_lists'
 
 
-# read data from dict and return it
+# read data from file and return it
+# path = the directory path
+# file = the file name
 def load_data(path, file):
     loaded_file = np.load(op.join(path, file))
     return loaded_file['matrix_arr']
+
+
 
 
 # reshaping the film data to fit the rest data
@@ -51,6 +54,15 @@ def read_file_random(rest_path, film_path, rest_file, film_file):
     return rest_data[:, random_column_indices], film_data[:, random_column_indices]
 
 
+def max_indices_mean(rest_path, film_path, rest_file, film_file):
+    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
+    rest_mean = np.mean(rest_data, axis=0)
+    film_mean = np.mean(film_data, axis=0)
+    mean_matrix = np.add(rest_mean, film_mean)/2
+    indices = np.argsort(mean_matrix)[-100:]
+    return rest_data[:, indices], film_data[:, indices]
+
+
 # return features from rest and film
 def feature_extract(rest_path, film_path, rest_file, film_file):
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
@@ -76,10 +88,10 @@ def max_diffrence_indices(rest_path, film_path, rest_file, film_file):
 def max_indices(rest_path, film_path, rest_file, film_file):
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_mean = np.mean(rest_data, axis=0)
-    # rest_indices = np.argsort(rest_mean)[-20:]
+    rest_indices = np.argsort(rest_mean)[-50:]
     film_mean = np.mean(film_data, axis=0)
-    film_indices = np.argsort(film_mean)[-100:]
-    # indices = np.append(rest_indices, film_indices)
+    film_indices = np.argsort(film_mean)[-50:]
+    indices = np.append(rest_indices, film_indices)
     indices = film_indices
     return rest_data[:, indices], film_data[:, indices]
 

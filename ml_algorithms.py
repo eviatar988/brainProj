@@ -67,3 +67,4 @@ def svm_classifier(x_train, y_train):
     model = SVC(kernel='rbf', gamma='scale')
     model.fit(x_train, y_train)
     return model
+

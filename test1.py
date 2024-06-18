@@ -60,3 +60,6 @@ def pred_all_frequencys(model_type, func):
         y_pred = np.where(y_pred > 2, 1, 0)
         accuracy.append(accuracy_score(y_test, y_pred))
     return accuracy
+
+
+
