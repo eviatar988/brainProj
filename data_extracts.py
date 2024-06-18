@@ -17,18 +17,26 @@ rest_lists_path = 'rest_lists'
 film_lists_path = 'film_lists'
 
 
-# read data from file and return it
-# path = the directory path
-# file = the file name
+
 def load_data(path, file):
+    
+    '''
+    Load the data from the file
+    return rest_data, film_data arrys for single patient
+    each array is a 2D array with shape (time, flat_matrix)
+    '''
+    
     loaded_file = np.load(op.join(path, file))
     return loaded_file['matrix_arr']
 
 
-
-
-# reshaping the film data to fit the rest data
+# 
 def data_fit(rest_path, film_path, rest_file, film_file):
+    '''
+    reshaping the film data to fit the rest data.
+    taking every second row matrix from the film data
+    cutting the film data to the same size as the rest data
+    '''
     rest_data = load_data(rest_path, rest_file)
     rest_shape = rest_data.shape[0]
     film_data = load_data(film_path, film_file)
@@ -37,46 +45,37 @@ def data_fit(rest_path, film_path, rest_file, film_file):
     return rest_data, film_data[:rest_shape]
 
 
-# return max values for rest and film
 def read_file_max(rest_path, film_path, rest_file, film_file):
+    '''
+    return the 100 max values for each second in the rest and film data
+    '''
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
-
     return np.sort(rest_data, axis=1)[:, -100:], np.sort(film_data, axis=1)[:, -100:]
 
 
-# return random values from rest and film
-def read_file_random(rest_path, film_path, rest_file, film_file):
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
-    num_random_columns = 100
-    # Randomly select column indices
-    random_column_indices = np.random.choice(rest_data.shape[1], num_random_columns, replace=False)
-    # Extract random columns
-    return rest_data[:, random_column_indices], film_data[:, random_column_indices]
-
 
 def max_indices_mean(rest_path, film_path, rest_file, film_file):
+    '''
+    create a mean matrix from rest and film data for single patient
+    choose the 100 max indices from the mean matrix
+    return arrys with the values in those indices for each second
+    '''
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
-    rest_mean = np.mean(rest_data, axis=0)
+    rest_mean = np.mean(rest_data, axis=0) 
     film_mean = np.mean(film_data, axis=0)
     mean_matrix = np.add(rest_mean, film_mean)/2
     indices = np.argsort(mean_matrix)[-100:]
     return rest_data[:, indices], film_data[:, indices]
 
 
-# return features from rest and film
-def feature_extract(rest_path, film_path, rest_file, film_file):
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
-    rest_features = np.zeros((rest_data.shape[0], 4))
-    for i in range(rest_data.shape[0]):
-        rest_features[i, :] = [np.mean(rest_data[i]), np.std(rest_data[i]), np.min(rest_data[i]), np.max(rest_data[i])]
-    film_features = np.zeros((film_data.shape[0], 4))
-    for i in range(film_data.shape[0]):
-        film_features[i, :] = [np.mean(film_data[i]), np.std(film_data[i]), np.min(film_data[i]), np.max(film_data[i])]
-    return rest_features
-
-
 # returning the indices with the most difference between film and rest
 def max_diffrence_indices(rest_path, film_path, rest_file, film_file):
+    '''
+    create a mean matrix from rest and film data for single patient
+    choose the 100 indices with the most difference between the rest and film data
+    return arrys with the values in those indices for each second
+    
+    '''
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_mean = np.mean(rest_data, axis=0)
     film_mean = np.mean(film_data, axis=0)
@@ -86,17 +85,25 @@ def max_diffrence_indices(rest_path, film_path, rest_file, film_file):
 
 # calculate the max indices of the mean of rest and film data, return the data in those indices
 def max_indices(rest_path, film_path, rest_file, film_file):
+    '''
+    creat mean matrix for each rest and film data for single patient 
+    find the 50 max indices in each mean matrix (50 from rest and 50 from film)
+    return arrys with the values in those indices for each second
+    '''
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_mean = np.mean(rest_data, axis=0)
     rest_indices = np.argsort(rest_mean)[-50:]
     film_mean = np.mean(film_data, axis=0)
     film_indices = np.argsort(film_mean)[-50:]
     indices = np.append(rest_indices, film_indices)
-    indices = film_indices
     return rest_data[:, indices], film_data[:, indices]
 
 
 def matrix_transform(matrix_flat):
+    
+    '''
+    create a 2D matrix from the flat matrix
+    '''
     data_len = matrix_flat.shape[0]
     matrix_len = int(math.sqrt(2 * matrix_flat.shape[1] + 1 / 4) + 1 / 2)
     matrix = np.zeros(shape=(data_len, matrix_len, matrix_len), dtype=float)
@@ -114,6 +121,9 @@ def matrix_transform(matrix_flat):
 
 
 def matrix_resize(matrix):
+    '''
+    resize the matrix to 30x30
+    '''
     resized_matrix = np.zeros(shape=(matrix.shape[0], 30, 30))
     for i in range(matrix.shape[0]):
         resized_matrix[i, :, :] = cv2.resize(matrix[i, :, :], (30, 30), interpolation=cv2.INTER_AREA)
@@ -121,6 +131,10 @@ def matrix_resize(matrix):
 
 
 def matrix_fit(rest_path, film_path, rest_file, film_file):
+    '''
+    reshape the rest and film data to gray scale 30x30x1 matrix
+    
+    '''
     rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_data = matrix_transform(rest_data)
     rest_data = matrix_resize(rest_data)
@@ -133,6 +147,13 @@ def matrix_fit(rest_path, film_path, rest_file, film_file):
 
 
 def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
+    '''
+    bound = patients 
+    
+    input: arry of patients indecies
+    ouput: rest and film data for all patients in the bound 
+    
+    '''
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'
