@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 import ml_algorithms
 import data_extracts
@@ -26,41 +27,33 @@ def data_split(rest_data , film_data):
     return X_train, X_test, y_train, y_test
 
 
-def random_forest_all(rest_func, film_func):
-    bounds = (0, 43)
-    predictions = []
-    for freq in freq_dict.keys():
-        data = data_extracts.data_trasnform(freq, freq, bounds)
-        X_train, X_test, y_train, y_test = data_split(data)
-        predictions.append(ml_algorithms.random_forest(X_train, X_test, y_train, y_test))
-    return predictions
+def pred_all_patients(model, func, freq):
+    rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 44), func)
+    X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
+    y_pred = model(X_train, X_test, y_train, y_test)
+    return accuracy_score(y_test, y_pred)
 
-def random_forest_single(index, func):
-    predictions = []
-    for freq in freq_dict.keys():
-        rest_data, film_data = data_extracts.data_extract(freq, freq, (index, index), func)
+
+def pred_single_frequency(model ,func, frequency):
+    accuracy = []
+    for i in range(45):
+        rest_data, film_data = data_extracts.data_extract(frequency,frequency,(i,i), func)
         X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
-        predictions.append(ml_algorithms.random_forest(X_train, X_test, y_train, y_test))
-    return predictions
+        y_pred = model(X_train, X_test, y_train, y_test)
+        accuracy.append(accuracy_score(y_test, y_pred))
+    return accuracy
 
-def svm_single(index, func):
-    predictions = []
-    for freq in freq_dict.keys():
-        rest_data, film_data = data_extracts.data_extract(freq, freq, (index,index), func)
-        X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
-        predictions.append(ml_algorithms.svm_classifier(X_train, X_test, y_train, y_test))
-    return predictions
-
-def svm_all(func):
-    predictions = []
-    for freq in freq_dict.keys():
-        rest_data, film_data = data_extracts.data_extract(freq, freq, (0,44), func)
-        X_train, X_test, y_train, y_test = data_split(rest_data , film_data)
-        predictions.append(ml_algorithms.svm_classifier(X_train, X_test, y_train, y_test))
-    return predictions
-
-rest_path = 'rest_data'
-
-patients = os.listdir(rest_path)
-for index in range(len(patients)):
-    print(svm_single(index, data_extracts.max_indices))
+def pred_all_frequencys(model, func):
+    accuracy = []
+    for i in range(45):
+        y_pred = []
+        for freq in []:
+            rest_data, film_data = data_extracts.data_extract(freq,freq,(i,i), func)
+            X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
+            if len(y_pred) == 0:
+                y_pred = model(X_train, X_test, y_train, y_test)
+            else:
+                y_pred += model(X_train, X_test, y_train, y_test)
+        y_pred = np.where(y_pred > 2, 1, 0)
+        accuracy.append(accuracy_score(y_test, y_pred))
+    return accuracy
