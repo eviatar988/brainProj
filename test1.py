@@ -39,7 +39,7 @@ def pred_single_frequency(model_type, func, frequency):
     for i in range(45):
         rest_data, film_data = data_extracts.data_extract(frequency, frequency, (i, i), func)
         X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
-        model = model_type(X_train, X_test)
+        model = model_type(X_train, y_train)
         y_pred = model.predict(X_test)
         accuracy.append(accuracy_score(y_test, y_pred))
     return accuracy
