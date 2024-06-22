@@ -74,12 +74,43 @@ def create_data():
         patient_m.save_matrix_to_file()
 
 def main():
+    
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'
     print(len(patients))
 
-    acc_al = []
+    accuracy = []
+    for freq in freq_dict.keys():
+        single_freq_acc = []
+        for patient in range(44):
+            counter = 0
+            rest_data, film_data = data_extracts.data_extract(freq, freq, (patient, patient), data_extracts.max_indices_mean)
+            for sec in range(rest_data.shape[0]):
+                rest_val = np.mean(rest_data[sec, :])
+                film_val = np.mean(film_data[sec, :])
+                if film_val > rest_val:
+                    counter += 1
+            patient_acc = counter / rest_data.shape[0]
+            single_freq_acc.append(patient_acc)
+        accuracy.append(single_freq_acc)
+        
+        
+    plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
+    plt.boxplot(accuracy, positions=[1, 2, 3, 4, 5, 6])  # Positions for the groups
+    # Optional: Add labels to x-axis
+    plt.xticks([1, 2, 3, 4, 5, 6], list(freq_dict.keys()))
+    plt.xlabel('Frequency ranges')
+    plt.ylabel('Accuracy')
+    plt.title('Boxplot Of Accuracies for single patient case')
+    plt.grid(True)
+    plt.show()
+    
+    
+    
+        
+            
+''' acc_al = []
     for freq in freq_dict.keys():
         acc = test1.pred_single_frequency(ml_algorithms.svm_classifier, data_extracts.max_indices, freq)
         print(np.mean(acc))
@@ -99,16 +130,11 @@ def main():
     plt.show()
 
     for freq in freq_dict.keys():
+        #  ?חוזרים פעמיים על אותו דבר
         acc = test1.pred_all_frequencys(ml_algorithms.svm_classifier, data_extracts.max_indices_mean)
         plt.boxplot(acc)
         plt.title(f"{freq}")
-        plt.show()
-
-
-
-
-
-
+        plt.show()'''
 
 
 if __name__ == '__main__':
