@@ -24,6 +24,8 @@ freq_dict = {
 }
 
 class PatientsMatrix:
+    # class which is used to create matrices for all patients in our data and save in a compressed file.
+    #
     def __init__(self, bids_root, sec_per_sample):
         self.sec_per_sample = int(sec_per_sample)
         self.bids_root = bids_root

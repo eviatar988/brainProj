@@ -57,13 +57,20 @@ def cnn(x_train, x_test, y_train, y_test):
     return y_pred
 """
 
+
 def random_forest(x_train, y_train):
+    # create random forest model and train in on the data, return the trained model
+    # x_train : nparray ,array that contains all the data
+    # y_train : int[] ,array that contains the labels of the data
     model = RandomForestClassifier(n_estimators=100, max_depth=2)
     model.fit(x_train, y_train)
     return model
 
 
 def svm_classifier(x_train, y_train):
+    # create random forest model and train in on the data , return the trained model
+    # x_train : nparray ,array that contains all the data
+    # y_train : int[] ,array that contains the labels of the data
     model = SVC(kernel='rbf', gamma='scale')
     model.fit(x_train, y_train)
     return model

@@ -3,6 +3,7 @@ import os
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
 
 import ml_algorithms
 import data_extracts
@@ -26,11 +27,41 @@ def data_split(rest_data, film_data):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
 
+def normalize_matrix(data):
+    row_norms = np.linalg.norm(data, axis=1, keepdims=True)
+    return data / row_norms
 
-def pred_all_patients(model, func, freq):
+def data_preparation(data):
+    scaler = StandardScaler()
+    return scaler.fit_transform(data)
+
+
+def pred_all_patients(model_type, func, freq):
     rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 44), func)
+    rest_data = data_preparation(rest_data)
+    film_data = data_preparation(film_data)
     X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
-    y_pred = model(X_train, X_test, y_train, y_test)
+    a, X_test, a, y_test = data_split(rest_data, film_data)
+    model = model_type(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    return accuracy_score(y_test, y_pred)
+
+def pred_all_patients_freqs(model_type, func):
+    y_pred = []
+    for freq in list(freq_dict.keys())[1:6]:
+        print(freq)
+
+        rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 40), func)
+        rest_data = data_preparation(rest_data)
+        film_data = data_preparation(film_data)
+        X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
+        model = model_type(X_train, y_train)
+        if len(y_pred) == 0:
+            y_pred = model.predict(X_test)
+        else:
+            y_pred += model.predict(X_test)
+    y_pred = np.where(y_pred > 2, 1, 0)
     return accuracy_score(y_test, y_pred)
 
 

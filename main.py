@@ -79,7 +79,10 @@ def main():
     patients = os.listdir(rest_path)
     film_path = 'film_data'
     print(len(patients))
-
+    for freq in freq_dict.keys():
+        print(freq+': ',test1.pred_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices_mean ,freq))
+    print(test1.pred_all_patients_freqs(ml_algorithms.svm_classifier,data_extracts.max_indices_mean))
+    """
     accuracy = []
     for freq in freq_dict.keys():
         single_freq_acc = []
@@ -104,7 +107,7 @@ def main():
     plt.ylabel('Accuracy')
     plt.title('Boxplot Of Accuracies for single patient case')
     plt.grid(True)
-    plt.show()
+    plt.show()"""
     
     
     
