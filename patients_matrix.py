@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 import os
 import os.path as op
-from coherence_matrix import CoherenceMatrix
+
+import coherence_matrix
 from tqdm import tqdm
 import threading
 
@@ -52,7 +53,6 @@ class PatientsMatrix:
             os.mkdir(op.join(rest_data_path))
         if not os.path.isdir(op.join(film_data_path)):
             os.mkdir(op.join(film_data_path))
-        coherence_matrix = CoherenceMatrix()
         rest_matrix_list, film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient)
 
         if rest_matrix_list is None or film_matrix_list is None:
@@ -71,9 +71,9 @@ class PatientsMatrix:
                 os.mkdir(film_dir_path)
             lower_Bound = freq_dict[key][0]
             upper_Bound = freq_dict[key][1]
-            np.savez(op.join(rest_dir_path, f'patient={patient},task=rest,freq={key}.npz'),
+            np.savez(op.join(rest_dir_path, f'patient={patient},task=rest,freq={key},sec={3}.npz'),
                      matrix_arr=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
-            np.savez(op.join(film_dir_path, f'patient={patient},task=film,freq={key}.npz'),
+            np.savez(op.join(film_dir_path, f'patient={patient},task=film,freq={key},sec={3}.npz'),
                      matrix_arr=np.mean(film_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
             print(patient,' complete')
 

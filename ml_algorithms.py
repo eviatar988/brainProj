@@ -8,7 +8,7 @@ from sklearn.svm import SVC
 
 import data_extracts
 from patients_matrix import PatientsMatrix
-from coherence_matrix import CoherenceMatrix
+import coherence_matrix
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import levene, gaussian_kde

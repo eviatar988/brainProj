@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
@@ -27,42 +28,49 @@ def data_split(rest_data, film_data):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
 
+
 def normalize_matrix(data):
     row_norms = np.linalg.norm(data, axis=1, keepdims=True)
     return data / row_norms
 
-def data_preparation(data):
+def data_preparation(x_train , x_test):
     scaler = StandardScaler()
-    return scaler.fit_transform(data)
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
+    """pca = PCA(n_components=10)
+    x_train = pca.fit_transform(x_train)
+    x_test = pca.transform(x_test)"""
+    return x_train, x_test
 
 
 def pred_all_patients(model_type, func, freq):
-    rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 44), func)
-    rest_data = data_preparation(rest_data)
-    film_data = data_preparation(film_data)
-    X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
-    a, X_test, a, y_test = data_split(rest_data, film_data)
-    model = model_type(X_train, y_train)
-    y_pred = model.predict(X_test)
 
+    rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 40), func)
+    x_train, x_test, y_train, y_test = data_split(rest_data, film_data)
+    """rest_data, film_data = data_extracts.data_extract(freq, freq, (40, 45), func)
+    x, x_test, x, y_test = data_split(rest_data, film_data)"""
+    x_train, x_test = data_preparation(x_train, x_test)
+    model = model_type(x_train, y_train)
+    y_pred = model.predict(x_test)
     return accuracy_score(y_test, y_pred)
 
 def pred_all_patients_freqs(model_type, func):
     y_pred = []
     for freq in list(freq_dict.keys())[1:6]:
         print(freq)
-
         rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 40), func)
-        rest_data = data_preparation(rest_data)
-        film_data = data_preparation(film_data)
-        X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
-        model = model_type(X_train, y_train)
+        x_train, x_test, y_train, y_test = data_split(rest_data, film_data)
+        x_train, x_test = data_preparation(x_train, x_test)
+        model = model_type(x_train, y_train)
         if len(y_pred) == 0:
-            y_pred = model.predict(X_test)
+            y_pred = model.predict(x_test)
         else:
-            y_pred += model.predict(X_test)
+            y_pred += model.predict(x_test)
+        print(accuracy_score(y_test, model.predict(x_test)))
     y_pred = np.where(y_pred > 2, 1, 0)
     return accuracy_score(y_test, y_pred)
+
+
 
 
 def pred_single_frequency(model_type, func, frequency):
@@ -70,6 +78,7 @@ def pred_single_frequency(model_type, func, frequency):
     for i in range(45):
         rest_data, film_data = data_extracts.data_extract(frequency, frequency, (i, i), func)
         X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
+        X_train, X_test = data_preparation(X_train, X_test)
         model = model_type(X_train, y_train)
         y_pred = model.predict(X_test)
         accuracy.append(accuracy_score(y_test, y_pred))

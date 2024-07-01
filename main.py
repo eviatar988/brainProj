@@ -10,7 +10,7 @@ import data_extracts
 import ml_algorithms
 import patients_matrix
 from patients_matrix import PatientsMatrix
-from coherence_matrix import CoherenceMatrix
+import coherence_matrix
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import levene, gaussian_kde
@@ -60,7 +60,7 @@ def show_me_matrix(matrix_flat, name):
 
 def readfile(task, patient, freq):
     task_dir_path = op.join(f'{task}_data' ,f'patient={patient}')
-    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},freq={freq}.npz'))
+    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},freq={freq},sec=3.npz'))
     return data['matrix_arr']
 
 
@@ -70,18 +70,19 @@ def get_bidsroot():
 
 def create_data():
         bids_root = get_bidsroot()
-        patient_m = PatientsMatrix(bids_root, 1)
+        patient_m = PatientsMatrix(bids_root, 3)
         patient_m.save_matrix_to_file()
 
 def main():
-    
+
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'
     print(len(patients))
     for freq in freq_dict.keys():
-        print(freq+': ',test1.pred_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices_mean ,freq))
-    print(test1.pred_all_patients_freqs(ml_algorithms.svm_classifier,data_extracts.max_indices_mean))
+        print(freq+': ', test1.pred_all_patients(ml_algorithms.svm_classifier, data_extracts.max_values, freq))
+    #print(test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices))
+    #print(test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices))
     """
     accuracy = []
     for freq in freq_dict.keys():
