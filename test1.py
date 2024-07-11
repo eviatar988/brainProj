@@ -79,6 +79,9 @@ def pred_all_patients_freqs(model_type, func):
 
 
 def pred_single_frequency(model_type, func, frequency):
+    '''
+    pred for single patient and single frequency
+    '''
     accuracy = []
     for i in range(45):
         rest_data, film_data = data_extracts.data_extract(frequency, frequency, (i, i), func)
@@ -91,6 +94,9 @@ def pred_single_frequency(model_type, func, frequency):
 
 
 def pred_all_frequencys(model_type, func):
+    '''
+    given accuracy for each patient using majority voting for all frequencies
+    '''
     accuracy = []
     for i in range(45):
         y_pred = []
