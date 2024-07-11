@@ -22,7 +22,7 @@ freq_dict = {
 def data_split(rest_data, film_data):
     rest_shape = rest_data.shape[0]
     X = np.append(film_data, rest_data, axis=0)
-    y = np.zeros(rest_shape * 2)
+    y = np.zeros(rest_shape * 2) # becase film and rest data are the same size
     y[:rest_shape] = 1
     # Split data into training and testing sets (80% training, 20% testing)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -55,7 +55,12 @@ def pred_all_patients(model_type, func, freq):
     return accuracy_score(y_test, y_pred)
 
 def pred_all_patients_freqs(model_type, func):
-    y_pred = []
+    '''
+    this func evluates the model on each frequency range 
+    and in addition to that it evaluates the model on all the frequency ranges (majority voting)
+    '''
+    
+    y_pred = [] # to store the sum of all predictions (for majority voting)
     for freq in list(freq_dict.keys())[1:6]:
         print(freq)
         rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 40), func)

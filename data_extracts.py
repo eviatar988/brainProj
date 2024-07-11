@@ -173,11 +173,11 @@ def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
     first_p = bounds[0]
     last_p = bounds[1]
 
-    rest_dict = op.join(rest_path, patients[first_p])
-    film_dict = op.join(film_path, patients[first_p])
+    rest_dict = op.join(rest_path, patients[first_p]) # rest path
+    film_dict = op.join(film_path, patients[first_p]) # film path
 
-    rest_file = f'{patients[first_p]},task=rest,freq={freq_type_rest},sec=3.npz'
-    film_file = f'{patients[first_p]},task=film,freq={freq_type_film},sec=3.npz'
+    rest_file = f'{patients[first_p]},task=rest,freq={freq_type_rest}.npz'
+    film_file = f'{patients[first_p]},task=film,freq={freq_type_film}.npz'
 
     rest_data, film_data = extract_func(rest_dict, film_dict, rest_file, film_file)
 
@@ -185,8 +185,8 @@ def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
         rest_dict = op.join(rest_path, patients[i])
         film_dict = op.join(film_path, patients[i])
 
-        rest_file = f'{patients[i]},task=rest,freq={freq_type_rest},sec=3.npz'
-        film_file = f'{patients[i]},task=film,freq={freq_type_film},sec=3.npz'
+        rest_file = f'{patients[i]},task=rest,freq={freq_type_rest}.npz'
+        film_file = f'{patients[i]},task=film,freq={freq_type_film}.npz'
         temp_rest, temp_film = extract_func(rest_dict, film_dict, rest_file, film_file)
 
         rest_data = np.append(rest_data, temp_rest, axis=0)

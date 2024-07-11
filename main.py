@@ -75,15 +75,21 @@ def create_data():
 
 def main():
 
+    accuracy_score = test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices_mean)
+    print(accuracy_score)
+    
+    
+    
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'
-    print(len(patients))
+    '''print(len(patients))
     for freq in freq_dict.keys():
-        print(freq+': ', test1.pred_all_patients(ml_algorithms.svm_classifier, data_extracts.max_values, freq))
+        print(freq+': ', test1.pred_all_patients(ml_algorithms.svm_classifier, data_extracts.max_values, freq))'''
+        
     #print(test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices))
     #print(test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices))
-    """
+    '''
     accuracy = []
     for freq in freq_dict.keys():
         single_freq_acc = []
@@ -114,7 +120,7 @@ def main():
     
         
             
-''' acc_al = []
+''' '''acc_al = []
     for freq in freq_dict.keys():
         acc = test1.pred_single_frequency(ml_algorithms.svm_classifier, data_extracts.max_indices, freq)
         print(np.mean(acc))
