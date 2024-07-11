@@ -50,7 +50,7 @@ def data_fit(rest_path, film_path, rest_file, film_file):
 
 def data_normalize(rest_data, film_data):
     rest_data =  np.apply_along_axis(lambda x: (x - np.mean(x)) / np.std(x), axis=1, arr= rest_data)
-    film_data = np.apply_along_axis(lambda x: (x - np.mean(x)) / np.std(x), axis=1, arr= film_data_data)
+    film_data = np.apply_along_axis(lambda x: (x - np.mean(x)) / np.std(x), axis=1, arr= film_data)
 
 def max_values(rest_path, film_path, rest_file, film_file):
     '''
