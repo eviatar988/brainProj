@@ -45,7 +45,7 @@ def data_preparation(x_train , x_test):
 
 def pred_all_patients(model_type, func, freq):
 
-    rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 40), func)
+    rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 44), func)
     x_train, x_test, y_train, y_test = data_split(rest_data, film_data)
     """rest_data, film_data = data_extracts.data_extract(freq, freq, (40, 45), func)
     x, x_test, x, y_test = data_split(rest_data, film_data)"""
@@ -63,7 +63,7 @@ def pred_all_patients_freqs(model_type, func):
     y_pred = [] # to store the sum of all predictions (for majority voting)
     for freq in list(freq_dict.keys())[1:6]:
         print(freq)
-        rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 40), func)
+        rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 44), func)
         x_train, x_test, y_train, y_test = data_split(rest_data, film_data)
         x_train, x_test = data_preparation(x_train, x_test)
         model = model_type(x_train, y_train)
