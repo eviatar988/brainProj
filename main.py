@@ -100,23 +100,22 @@ def main():
         plt.grid(True)
         plt.show()
   
-    
-    accuracy_rest_indices = test1.pred_single_state_indices('rest',ml_algorithms.random_forest)
-    accuracy_film_indices = test1.pred_single_state_indices('film',ml_algorithms.random_forest)
-    
-    #plot the accuracy of the rest and film indices
-    plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
-    plt.boxplot([accuracy_rest_indices,accuracy_film_indices], positions=[1, 2])  # Positions for the groups
-    # Optional: Add labels to x-axis
-    plt.xticks([1, 2], ['rest', 'film'])
-    plt.xlabel('State')
-    plt.ylabel('Accuracy')
-    plt.title('single state indices max values  - random forest')
-    plt.grid(True)
-    plt.show()
-    
-    
+    def compute_single_state_indices_accuracy():
+        accuracy_rest_indices = test1.pred_single_state_indices('rest',ml_algorithms.random_forest)
+        accuracy_film_indices = test1.pred_single_state_indices('film',ml_algorithms.random_forest)
         
+        #plot the accuracy of the rest and film indices
+        plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
+        plt.boxplot([accuracy_rest_indices,accuracy_film_indices], positions=[1, 2])  # Positions for the groups
+        # Optional: Add labels to x-axis
+        plt.xticks([1, 2], ['rest', 'film'])
+        plt.xlabel('State')
+        plt.ylabel('Accuracy')
+        plt.title('single state indices max values  - random forest')
+        plt.grid(True)
+        plt.show()
+        
+  
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'
