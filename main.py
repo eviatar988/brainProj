@@ -75,11 +75,48 @@ def create_data():
 
 def main():
 
-    accuracy_score = test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices_mean)
-    print(accuracy_score)
+    def compute_overlap():
+        accuracy_per_freq = []
+        for freq in freq_dict.keys():
+            temp_Arr = []
+            for i in range(45):   
+
+                rest_indices,film_indices = data_extracts.data_extract(freq, freq, (i, i), data_extracts.get_max_indices_mean_matrix)
+                
+                #common indices
+                common_indices = np.intersect1d(rest_indices, film_indices)
+                common_indices_len = common_indices.shape[0]
+                temp_Arr.append(common_indices_len)
+            accuracy_per_freq.append(temp_Arr)    
+        
+        # boxplot of the common indices
+        plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
+        plt.boxplot(accuracy_per_freq, positions=[1, 2, 3, 4, 5, 6])  # Positions for the groups
+        # Optional: Add labels to x-axis
+        plt.xticks([1, 2, 3, 4, 5, 6], list(freq_dict.keys()))
+        plt.xlabel('Frequency ranges')
+        plt.ylabel('Common indices')
+        plt.title('Boxplot Of Common indices for single patient case over mean matrix')
+        plt.grid(True)
+        plt.show()
+  
+    
+    accuracy_rest_indices = test1.pred_single_state_indices('rest',ml_algorithms.random_forest)
+    accuracy_film_indices = test1.pred_single_state_indices('film',ml_algorithms.random_forest)
+    
+    #plot the accuracy of the rest and film indices
+    plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
+    plt.boxplot([accuracy_rest_indices,accuracy_film_indices], positions=[1, 2])  # Positions for the groups
+    # Optional: Add labels to x-axis
+    plt.xticks([1, 2], ['rest', 'film'])
+    plt.xlabel('State')
+    plt.ylabel('Accuracy')
+    plt.title('single state indices max values  - random forest')
+    plt.grid(True)
+    plt.show()
     
     
-    
+        
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'
@@ -149,4 +186,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 

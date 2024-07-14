@@ -114,3 +114,26 @@ def pred_all_frequencys(model_type, func):
 
 
 
+def pred_single_state_indices(state,model_type):
+    
+    accuracy = []
+    for i in range(45):
+        y_pred = []
+        for freq in list(freq_dict.keys())[1:6]:
+            if state =='rest':
+                rest_data,film_data =  data_extracts.data_extract(freq,freq,(i,i),data_extracts.max_indices_rest)
+            if state =='film':
+                rest_data,film_data = data_extracts.data_extract(freq,freq,(i,i),data_extracts.max_indices_film)
+            
+            X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
+            X_train, X_test = data_preparation(X_train, X_test)
+            model = model_type(X_train, y_train)
+            if len(y_pred) == 0:
+                y_pred = model.predict(X_test)
+            else:
+                y_pred += model.predict(X_test)
+                
+        y_pred = np.where(y_pred > 2, 1, 0)
+        accuracy.append(accuracy_score(y_test, y_pred))
+    return accuracy
+

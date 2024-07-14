@@ -52,6 +52,16 @@ def data_normalize(rest_data, film_data):
     rest_data =  np.apply_along_axis(lambda x: (x - np.mean(x)) / np.std(x), axis=1, arr= rest_data)
     film_data = np.apply_along_axis(lambda x: (x - np.mean(x)) / np.std(x), axis=1, arr= film_data)
 
+def get_max_indices_mean_matrix(rest_path, film_path, rest_file, film_file):
+
+    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
+    rest_mean = np.mean(rest_data, axis=0) # mean matrix over time
+    film_mean = np.mean(film_data, axis=0) # mean matrix over time
+    rest_indices = np.argsort(rest_mean)[-50:] # 50 max indices
+    film_indices = np.argsort(film_mean)[-50:] # 50 max indices
+    
+    return rest_indices, film_indices
+
 def max_values(rest_path, film_path, rest_file, film_file):
     '''
     return the 100 max values for each second in the rest and film data
@@ -111,6 +121,8 @@ def max_indices(rest_path, film_path, rest_file, film_file):
     return rest_data[:, rest_indices], film_data[:, film_indices]
 
 
+
+
 def matrix_transform(matrix_flat):
     
     '''
@@ -156,6 +168,26 @@ def matrix_fit(rest_path, film_path, rest_file, film_file):
     film_data = matrix_resize(film_data)
     film_data = np.reshape(film_data, (film_data.shape[0], film_data.shape[1], film_data.shape[2], 1))
     return rest_data, film_data
+
+def max_indices_film(rest_path, film_path, rest_file, film_file):
+    '''
+    return data only in film indices (for rest and film)
+    '''
+    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
+    film_mean = np.mean(film_data, axis=0)
+    film_indices = np.sort(np.argsort(film_mean)[-50:])
+    return rest_data[:, film_indices], film_data[:, film_indices]
+
+def max_indices_rest(rest_path, film_path, rest_file, film_file):
+    '''
+    creat mean matrix for each rest and film data for single patient 
+    find the 50 max indices in each mean matrix (50 from rest and 50 from film)
+    return arrys with the values in those indices for each second
+    '''
+    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
+    rest_mean = np.mean(rest_data, axis=0)
+    rest_indices = np.sort(np.argsort(rest_mean)[-50:])
+    return rest_data[:, rest_indices], film_data[:, rest_indices]
 
 
 def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
