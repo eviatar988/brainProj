@@ -114,8 +114,53 @@ def main():
         plt.title('single state indices max values  - random forest')
         plt.grid(True)
         plt.show()
-        
-  
+      
+    # pred all patients freqs
+    accuracy_randomForest = test1.pred_all_patients_freqs_2(ml_algorithms.random_forest, data_extracts.max_indices)
+    accuracy_svm = test1.pred_all_patients_freqs_2(ml_algorithms.svm_classifier, data_extracts.max_indices)
+    
+    
+    # todo: plot the single column accuracy
+    
+    print(accuracy_randomForest)
+    print(accuracy_svm)
+    
+    # plot the accuracy of the random forest and svm
+   
+    plt.bar(['random forest', 'svm'], [np.mean(accuracy_randomForest), np.mean(accuracy_svm)])
+    plt.xlabel('Model')
+    plt.ylabel('Accuracy')
+    plt.title('Random forest vs SVM - all patients - max indices')
+    plt.show()
+       
+   
+    
+    
+    
+    
+    
+    
+ 
+    
+    '''max_indices= test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices)
+    max_diffrence_indices= test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_diffrence_indices)
+    max_indices_rest= test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices_rest)
+    max_indices_film= test1.pred_all_patients_freqs(ml_algorithms.svm_classifier, data_extracts.max_indices_film)
+'''
+    #append all the accuracies to the list
+    #all_patients_accuracy.append(max_indices_mean)
+    #all_patients_accuracy.append(max_values)
+    '''all_patients_accuracy.append(max_indices)
+    all_patients_accuracy.append(max_diffrence_indices)
+    all_patients_accuracy.append(max_indices_rest)
+    all_patients_accuracy.append(max_indices_film)
+    '''
+   # print(all_patients_accuracy)
+   # print(all_patients_accuracy.shape)
+    #plot the accuracy use matplotlib
+   
+    
+    
     rest_path = 'rest_data'
     patients = os.listdir(rest_path)
     film_path = 'film_data'

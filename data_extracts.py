@@ -5,15 +5,12 @@ import os
 from mne.datasets import sample
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-
 from patients_matrix import PatientsMatrix
-import coherence_matrix
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import levene, gaussian_kde
 from scipy.stats import anderson
 import scipy.stats as stats
-import patients_matrix
 import cv2
 
 # %%
@@ -225,3 +222,47 @@ def data_extract(freq_type_rest, freq_type_film, bounds, extract_func):
         film_data = np.append(film_data, temp_film, axis=0)
 
     return rest_data, film_data
+
+def data_extract_2(freq_type_rest, freq_type_film, test_patients, extract_func):
+    '''
+    data extract for all patients except the test patients
+    
+    '''
+    rest_path = 'rest_data'
+    patients = os.listdir(rest_path)
+    film_path = 'film_data'
+
+
+    rest_dict = op.join(rest_path, patients[0]) # rest path
+    film_dict = op.join(film_path, patients[0]) # film path
+
+    rest_file = f'{patients[0]},task=rest,freq={freq_type_rest}.npz'
+    film_file = f'{patients[0]},task=film,freq={freq_type_film}.npz'
+
+    rest_data, film_data = extract_func(rest_dict, film_dict, rest_file, film_file)
+
+    for i in range(1,44):
+        if i in test_patients:
+            continue
+        rest_dict = op.join(rest_path, patients[i])
+        film_dict = op.join(film_path, patients[i])
+
+        rest_file = f'{patients[i]},task=rest,freq={freq_type_rest}.npz'
+        film_file = f'{patients[i]},task=film,freq={freq_type_film}.npz'
+        temp_rest, temp_film = extract_func(rest_dict, film_dict, rest_file, film_file)
+
+        rest_data_train = np.append(rest_data, temp_rest, axis=0)
+        film_data_train = np.append(film_data, temp_film, axis=0)
+
+    for i in test_patients:
+        rest_dict = op.join(rest_path, patients[i])
+        film_dict = op.join(film_path, patients[i])
+
+        rest_file = f'{patients[i]},task=rest,freq={freq_type_rest}.npz'
+        film_file = f'{patients[i]},task=film,freq={freq_type_film}.npz'
+        rest_data_test, film_data_test = extract_func(rest_dict, film_dict, rest_file, film_file)
+        
+        rest_data_test = np.append(rest_data_test, temp_rest, axis=0)
+        film_data_test = np.append(film_data_test, temp_film, axis=0)
+    
+    return rest_data_train, film_data_train, rest_data_test, film_data_test

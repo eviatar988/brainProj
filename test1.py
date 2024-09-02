@@ -23,7 +23,7 @@ def data_split(rest_data, film_data):
     rest_shape = rest_data.shape[0]
     X = np.append(film_data, rest_data, axis=0)
     y = np.zeros(rest_shape * 2) # becase film and rest data are the same size
-    y[:rest_shape] = 1
+    y[:rest_shape] = 1 # 1 for film, 0 for rest, it is more accurate to use write 'film shape' instead of 'rest shape' but it is the same
     # Split data into training and testing sets (80% training, 20% testing)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
@@ -137,3 +137,51 @@ def pred_single_state_indices(state,model_type):
         accuracy.append(accuracy_score(y_test, y_pred))
     return accuracy
 
+
+def pred_all_patients_freqs_2(model_type, func):
+   
+   # pick 8 random patients
+    patients = os.listdir('rest_data')
+    test_patients = np.random.choice(len(patients), 8, replace=False)
+    
+    
+    y_pred = [] # to store the sum of all predictions (for majority voting)
+    for freq in list(freq_dict.keys())[1:6]:
+        print(freq)
+        rest_data_train, film_data_train, rest_data_test, film_data_test = data_extracts.data_extract_2(freq, freq, test_patients, func)
+ 
+        rest_shape_train = rest_data_train.shape[0]
+        X_train = np.append(film_data_train, rest_data_train, axis=0)
+        y_train = np.zeros(rest_shape_train * 2) # becase film and rest data are the same size
+        y_train[:rest_shape_train] = 1
+        
+        #shuffle the data
+        indices = np.arange(X_train.shape[0])
+        np.random.shuffle(indices)
+        X_train = X_train[indices]
+        y_train = y_train[indices]
+    
+    
+        X_test = np.append(film_data_test, rest_data_test, axis=0)
+        rest_shape_test = rest_data_test.shape[0]
+        y_test = np.zeros(rest_shape_test * 2)
+        y_test[:rest_shape_test] = 1
+        
+        #shuffle the data
+        indices = np.arange(X_test.shape[0])
+        np.random.shuffle(indices)
+        X_test = X_test[indices]
+        y_test = y_test[indices]
+        
+        X_train, X_test = data_preparation(X_train, X_test)
+        
+        model = model_type(X_train, y_train)
+        if len(y_pred) == 0:
+            y_pred = model.predict(X_test)
+        else:
+            y_pred += model.predict(X_test)
+        print(accuracy_score(y_test, model.predict(X_test)))
+    y_pred = np.where(y_pred > 2, 1, 0)
+    print('accuracy:',accuracy_score(y_test, y_pred))
+    return accuracy_score(y_test, y_pred)
+        
