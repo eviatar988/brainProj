@@ -71,7 +71,7 @@ def svm_classifier(x_train, y_train):
     # create random forest model and train in on the data , return the trained model
     # x_train : nparray ,array that contains all the data
     # y_train : int[] ,array that contains the labels of the data
-    model = SVC(kernel='rbf', gamma='scale')
+    model = SVC(kernel='rbf', gamma='scale', random_state=42, C=5, probability=True)
     model.fit(x_train, y_train)
     return model
 

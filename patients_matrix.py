@@ -11,7 +11,7 @@ import threading
 
 
 # object hold all the matrix's of both films and rest for all patients
-
+signal_len = 3
 save_filename = 'coherence_matrixs.npz'
 rest_data_path = 'rest_data'
 film_data_path = 'film_data'
@@ -48,12 +48,14 @@ class PatientsMatrix:
                 patients_list.append(str(i))
         return patients_list
 
-    def patient_thread(self,patient):
+    def patient_thread_coherence(self,patient):
         if not os.path.isdir(op.join(rest_data_path)):
             os.mkdir(op.join(rest_data_path))
         if not os.path.isdir(op.join(film_data_path)):
             os.mkdir(op.join(film_data_path))
-        rest_matrix_list, film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient)
+        task = coherence_matrix.coherence_calc
+        rest_matrix_list, film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient,
+                                                                                 self.sec_per_sample)
 
         if rest_matrix_list is None or film_matrix_list is None:
             print('No ecog samples for this patient')
@@ -71,14 +73,45 @@ class PatientsMatrix:
                 os.mkdir(film_dir_path)
             lower_Bound = freq_dict[key][0]
             upper_Bound = freq_dict[key][1]
-            np.savez(op.join(rest_dir_path, f'patient={patient},task=rest,freq={key},sec={3}.npz'),
+            np.savez(op.join(rest_dir_path, f'patient={patient},task=rest,freq={key},sec={signal_len}.npz'),
                      matrix_arr=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
-            np.savez(op.join(film_dir_path, f'patient={patient},task=film,freq={key},sec={3}.npz'),
+            np.savez(op.join(film_dir_path, f'patient={patient},task=film,freq={key},sec={signal_len}.npz'),
                      matrix_arr=np.mean(film_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
             print(patient,' complete')
 
-    def save_matrix_to_file(self):
+    def patient_thread_plv(self, patient):
+        if not os.path.isdir(op.join(rest_data_path)):
+            os.mkdir(op.join(rest_data_path))
+        if not os.path.isdir(op.join(film_data_path)):
+            os.mkdir(op.join(film_data_path))
+        rest_matrix_list, film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient,
+                                                                                 self.sec_per_sample, task=coherence_matrix.calculate_plv)
+
+        if rest_matrix_list is None or film_matrix_list is None:
+            print('No ecog samples for this patient')
+            return
+        rest_matrix_list = np.array(rest_matrix_list, dtype=float)
+        film_matrix_list = np.array(film_matrix_list, dtype=float)
+        rest_dir_path = op.join(rest_data_path, f'patient={patient}')
+        film_dir_path = op.join(film_data_path, f'patient={patient}')
+        if not os.path.isdir(rest_dir_path):
+            os.mkdir(rest_dir_path)
+        if not os.path.isdir(film_dir_path):
+            os.mkdir(film_dir_path)
+        np.savez(op.join(rest_dir_path, f'patient={patient},task=rest,plv,sec={self.sec_per_sample}.npz'),
+                 matrix_arr=rest_matrix_list, allow_pickle=True)
+        np.savez(op.join(film_dir_path, f'patient={patient},task=film,plv,sec={self.sec_per_sample}.npz'),
+                 matrix_arr=film_matrix_list, allow_pickle=True)
+        print(patient, ' complete')
+
+    def save_matrix_to_file(self, measurement = 'coherence'):
+
         proc_arr = []
-        for i in self.get_patients():
-            self.patient_thread(i)
+        if measurement != 'coherence':
+            for i in self.get_patients():
+                self.patient_thread_plv(i)
+        else:
+            for i in self.get_patients():
+                self.patient_thread_coherence(i)
+
 

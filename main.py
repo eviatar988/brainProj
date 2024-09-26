@@ -6,9 +6,12 @@ import scipy.stats
 import sklearn.metrics
 from mne.datasets import sample
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
+
 import data_extracts
 import ml_algorithms
 import patients_matrix
+import test2
 from patients_matrix import PatientsMatrix
 import coherence_matrix
 from matplotlib import pyplot as plt
@@ -35,13 +38,14 @@ freq_dict = {
     'alpha': (8, 12),
     'beta': (12, 30),
     'low_gamma': (30, 70),
-    'high_gamma': (70, 250)
+    'high_gamma': (70, 250),
+    'plv': (5,5)
 }
 
 
 def show_me_matrix(matrix_flat, name):
     matrix_len = int(math.sqrt(2*len(matrix_flat)+1/4)+1/2)
-    matrix = np.zeros(shape=(matrix_len,matrix_len),dtype=float)
+    matrix = np.zeros(shape=(matrix_len, matrix_len), dtype=float)
     index = 0
     for i in range(matrix_len):
         for j in range(i,matrix_len):
@@ -63,44 +67,93 @@ def readfile(task, patient, freq):
     data = np.load(op.join(task_dir_path, f'patient={patient},task={task},freq={freq},sec=3.npz'))
     return data['matrix_arr']
 
+def readfile_plv(task, patient):
+    task_dir_path = op.join(f'{task}_data', f'patient={patient}')
+    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},plv,sec=3.npz'))
+    return data['matrix_arr']
 
 def get_bidsroot():
     return op.join(op.dirname(sample.data_path()), dataset)
 
 
-def create_data():
+def create_data(sec_per_sample, measurement):
         bids_root = get_bidsroot()
-        patient_m = PatientsMatrix(bids_root, 3)
-        patient_m.save_matrix_to_file()
+        patient_m = PatientsMatrix(bids_root, sec_per_sample)
+        patient_m.save_matrix_to_file(measurement)
 
+
+top_directory = 'C:\\Users\\Eyal Arad\\Documents\\GitHub\\brainProj\\rest_data'
+
+
+# Function to rename files
+def rename_files_in_directory(directory):
+    # Walk through all directories and files
+    for root, dirs, files in os.walk(directory):
+        for file_name in files:
+            if 'plv' in file_name:
+            # Generate new file name
+                new_name = file_name.replace('type=type=plv', 'type=plv')
+                print(new_name)
+                old_file_path = os.path.join(root, file_name)
+                new_file_path = os.path.join(root, new_name)
+                os.rename(old_file_path, new_file_path)
+# Call the function on your directory
 def main():
-
-    def compute_overlap():
-        accuracy_per_freq = []
-        for freq in freq_dict.keys():
-            temp_Arr = []
-            for i in range(45):   
-
-                rest_indices,film_indices = data_extracts.data_extract(freq, freq, (i, i), data_extracts.get_max_indices_mean_matrix)
-                
-                #common indices
-                common_indices = np.intersect1d(rest_indices, film_indices)
-                common_indices_len = common_indices.shape[0]
-                temp_Arr.append(common_indices_len)
-            accuracy_per_freq.append(temp_Arr)    
-        
-        # boxplot of the common indices
-        plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
-        plt.boxplot(accuracy_per_freq, positions=[1, 2, 3, 4, 5, 6])  # Positions for the groups
-        # Optional: Add labels to x-axis
-        plt.xticks([1, 2, 3, 4, 5, 6], list(freq_dict.keys()))
-        plt.xlabel('Frequency ranges')
-        plt.ylabel('Common indices')
-        plt.title('Boxplot Of Common indices for single patient case over mean matrix')
-        plt.grid(True)
-        plt.show()
-  
-    def compute_single_state_indices_accuracy():
+    """accuracy1 = test2.majority_vote_cross_eval(3, ml_algorithms.svm_classifier,data_extracts.max_indices,
+                                         1, np.arange(45))
+    print(accuracy1)
+    accuracy2 = test2.majority_vote_cross_eval_single(3, ml_algorithms.svm_classifier,data_extracts.max_indices,
+                                         1, np.arange(45))
+    print(accuracy2)"""
+    # acc_al = []
+    # for freq in freq_dict.keys():
+    #     acc = test2.test_single_patient(ml_algorithms.svm_classifier, data_extracts.max_indices, freq,1
+    #                                     ,np.arange(45))
+    #     print(np.mean(acc))
+    #     acc_al.append(acc)
+    # 
+    # plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
+    #
+    # plt.boxplot(acc_al, positions=[1, 2, 3, 4, 5, 6, 7])  # Positions for the groups
+    #
+    # # Optional: Add labels to x-axis
+    # plt.xticks([1, 2, 3, 4, 5, 6, 7], list(freq_dict.keys()))
+    # plt.xlabel('Data Type')
+    # plt.ylabel('Accuracy')
+    # plt.title('Boxplot Of Accuracies for single patient case, Svm ')
+    # plt.grid(True)
+    print(test2.test_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices,'plv',
+                                         1, np.arange(45),np.arange(45)))
+    # accuracy4 = np.zeros(45)
+    # for i in range(5):
+    #     print(i)
+    # accuracy4 += test2.test_single_patient(ml_algorithms.svm_classifier,data_extracts.max_indices,'plv',
+                                         #1, np.arange(45))
+    # print(accuracy4/5)
+    # acc1 = 0.7897152818128996
+    # acc2 = array = np.array([0.69113924, 0.93333333, 0.78974359, 1.0, 0.96153846, 0.58888889,
+    #               0.68571429, 0.80833333, 0.82222222, 0.86666667, 0.83611111, 1.0,
+    #               0.71842105, 0.73055556, 0.85897436, 0.99444444, 0.96153846, 0.96410256,
+    #               0.81012658, 0.936, 0.87692308, 0.57222222, 0.59230769, 1.0,
+    #               0.98421053, 0.98205128, 0.72658228, 0.6835443, 0.97692308, 0.6,
+    #               0.99722222, 0.96153846, 0.76410256, 0.99487179, 0.82820513, 1.0,
+    #               1.0, 0.94102564, 0.73611111, 0.98863636, 0.91794872, 1.0,
+    #               0.9, 0.81012658, 0.57974684])
+    # acc3 = 0.7919233004067403
+    # acc4 = np.array([0.75443038, 0.96944444, 0.66666667, 1.0, 0.96153846, 0.64722222,
+    #                0.81298701, 0.92777778, 0.67222222, 0.725, 0.89444444, 0.99444444,
+    #                0.65263158, 0.79722222, 0.83846154, 0.97777778, 0.95897436, 0.99230769,
+    #                0.74683544, 0.87733333, 0.9025641, 0.55833333, 0.68717949, 0.99506173,
+    #                0.95526316, 0.95384615, 0.67088608, 0.68607595, 0.86153846, 0.60263158,
+    #                0.96111111, 0.87179487, 0.86153846, 0.97948718, 0.8025641, 1.0,
+    #                1.0, 0.84358974, 0.775, 0.99318182, 0.93589744, 0.98717949,
+    #                0.86111111, 0.8556962, 0.64556962])
+    # print(np.mean(acc2))
+    # print(np.mean(acc4))
+    # sns.boxplot(data=acc4)
+    # plt.title(f'svm classifier, single_paitent, majority vote over freqs')
+    # plt.show()
+    """ef compute_single_state_indices_accuracy():
         accuracy_rest_indices = test1.pred_single_state_indices('rest',ml_algorithms.random_forest)
         accuracy_film_indices = test1.pred_single_state_indices('film',ml_algorithms.random_forest)
         
@@ -131,7 +184,7 @@ def main():
     plt.xlabel('Model')
     plt.ylabel('Accuracy')
     plt.title('Random forest vs SVM - all patients - max indices')
-    plt.show()
+    plt.show()""""""
        
    
     
@@ -201,7 +254,7 @@ def main():
     
         
             
-''' '''acc_al = []
+    ''' acc_al = []
     for freq in freq_dict.keys():
         acc = test1.pred_single_frequency(ml_algorithms.svm_classifier, data_extracts.max_indices, freq)
         print(np.mean(acc))

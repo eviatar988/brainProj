@@ -42,19 +42,25 @@ def data_preparation(x_train , x_test):
     x_test = pca.transform(x_test)"""
     return x_train, x_test
 
-
-def pred_all_patients(model_type, func, freq):
-
-    rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 44), func)
-    x_train, x_test, y_train, y_test = data_split(rest_data, film_data)
+def pred_all_patients_plv(model_type, func):
+    x_train, x_test, y_train, y_test = data_extracts.data_extract_plv((0, 30), func)
+    _, x_test, _, y_test = data_extracts.data_extract_plv((30, 45), func)
+    x_train, x_test = data_preparation(x_train, x_test)
     """rest_data, film_data = data_extracts.data_extract(freq, freq, (40, 45), func)
     x, x_test, x, y_test = data_split(rest_data, film_data)"""
+    model = model_type(x_train, y_train)
+    y_pred = model.predict(x_test)
+    return accuracy_score(y_test, y_pred)
+
+def pred_all_patients(model_type, func, freq):
+    x_train, x_test, y_train, y_test = data_extracts.data_extract((0, 30), func, freq, freq)
+    #_, x_test, _, y_test = data_extracts.data_extract((30, 45), func, freq, freq)
     x_train, x_test = data_preparation(x_train, x_test)
     model = model_type(x_train, y_train)
     y_pred = model.predict(x_test)
     return accuracy_score(y_test, y_pred)
 
-def pred_all_patients_freqs(model_type, func):
+def pred_all_patients_freqs(model_type, func, sample_size):
     '''
     this func evluates the model on each frequency range 
     and in addition to that it evaluates the model on all the frequency ranges (majority voting)
@@ -63,8 +69,9 @@ def pred_all_patients_freqs(model_type, func):
     y_pred = [] # to store the sum of all predictions (for majority voting)
     for freq in list(freq_dict.keys())[1:6]:
         print(freq)
-        rest_data, film_data = data_extracts.data_extract(freq, freq, (0, 44), func)
-        x_train, x_test, y_train, y_test = data_split(rest_data, film_data)
+        np.random.seed(42)
+        x_train, x_test, y_train, y_test = data_extracts.data_extract((0, 30), func, sample_size)
+        #_, x_test, _, y_test = data_extracts.data_extract((30, 45), func, freq, freq)
         x_train, x_test = data_preparation(x_train, x_test)
         model = model_type(x_train, y_train)
         if len(y_pred) == 0:
@@ -77,6 +84,15 @@ def pred_all_patients_freqs(model_type, func):
 
 
 
+def pred_single_plv(model_type, func):
+    accuracy = []
+    for i in range(45):
+        X_train, X_test, y_train, y_test = data_extracts.data_extract((i, i), func,'plv')
+        X_train, X_test = data_preparation(X_train, X_test)
+        model = model_type(X_train, y_train)
+        y_pred = model.predict(X_test)
+        accuracy.append(accuracy_score(y_test, y_pred))
+    return accuracy
 
 def pred_single_frequency(model_type, func, frequency):
     '''
@@ -84,8 +100,7 @@ def pred_single_frequency(model_type, func, frequency):
     '''
     accuracy = []
     for i in range(45):
-        rest_data, film_data = data_extracts.data_extract(frequency, frequency, (i, i), func)
-        X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
+        X_train, X_test, y_train, y_test = data_extracts.data_extract((i, i), func, frequency)
         X_train, X_test = data_preparation(X_train, X_test)
         model = model_type(X_train, y_train)
         y_pred = model.predict(X_test)
@@ -101,8 +116,9 @@ def pred_all_frequencys(model_type, func):
     for i in range(45):
         y_pred = []
         for freq in list(freq_dict.keys())[1:6]:
-            rest_data, film_data = data_extracts.data_extract(freq, freq, (i, i), func)
-            X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
+            np.random.seed(42)
+            X_train, X_test, y_train, y_test = data_extracts.data_extract((i, i), func, freq)
+            X_train, X_test = data_preparation(X_train, X_test)
             model = model_type(X_train, y_train)
             if len(y_pred) == 0:
                 y_pred = model.predict(X_test)
