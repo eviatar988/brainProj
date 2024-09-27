@@ -3,6 +3,7 @@ import os
 import numpy as np
 import shap
 from lime import lime_tabular
+import random
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -35,7 +36,7 @@ def data_preparation(x_train , x_test):
 def test_all_patients(model_type, func, data_type, sample_size, p_train, p_test=None):
     x_train, x_test, y_train, y_test = data_extracts.data_extract(p_train, func, data_type, sample_size)
     if p_test is not None:
-        _, x_test, _, y_test = data_extracts.data_extract(p_test, data_extracts.max_values_test,data_type, sample_size)
+        _, x_test, _, y_test = data_extracts.data_extract(p_test, func, data_type, sample_size)
     # if p_test is not None:
     #     _, x_test, _, y_test = data_extracts.data_extract(p_test, func, data_type, sample_size)
     x_train, x_test = data_preparation(x_train, x_test)
@@ -50,7 +51,7 @@ def test_single_patient_majority_vote(model_type, func, sample_size, p_train, se
     accuracy = []
     for i in p_train:
         y_pred = []
-        for data_type in list(freq_dict.keys())[1:6]:
+        for data_type in list(freq_dict.keys()):
             np.random.seed(seed)
             X_train, X_test, y_train, y_test = data_extracts.data_extract([i], func, data_type, sample_size)
             X_train, X_test = data_preparation(X_train, X_test)
@@ -59,7 +60,9 @@ def test_single_patient_majority_vote(model_type, func, sample_size, p_train, se
                 y_pred = model.predict(X_test)
             else:
                 y_pred += model.predict(X_test)
-        y_pred = np.where(y_pred > 2, 1, 0)
+        np.random.seed(None)
+        y_pred[y_pred == 3] += random.randint(-1, 1)
+        y_pred = np.where(y_pred > 3, 1, 0)
         accuracy.append(accuracy_score(y_test, y_pred))
     return accuracy
 
@@ -83,18 +86,20 @@ def test_all_patient_majority_vote(model_type, func, sample_size, p_train, seed=
     '''
 
     y_pred = []  # to store the sum of all predictions (for majority voting)
-    for data_type in list(freq_dict.keys())[1:6]:
+    for data_type in list(freq_dict.keys()):
         np.random.seed(seed)
         x_train, x_test, y_train, y_test = data_extracts.data_extract(p_train, func, data_type, sample_size)
         if p_test is not None:
-            _, x_test, _, y_test = data_extracts.data_extract(p_test, func, data_extracts.max_values_test, sample_size)
+            _, x_test, _, y_test = data_extracts.data_extract(p_test, func, data_type, sample_size)
         x_train, x_test = data_preparation(x_train, x_test)
         model = model_type(x_train, y_train)
         if len(y_pred) == 0:
             y_pred = model.predict(x_test)
         else:
             y_pred += model.predict(x_test)
-    y_pred = np.where(y_pred > 2, 1, 0)
+    np.random.seed(None)
+    y_pred[y_pred == 3] += random.randint(-1, 1)
+    y_pred = np.where(y_pred > 3, 1, 0)
     return accuracy_score(y_test, y_pred)
 
 def majority_vote_cross_eval(eval_num, model_type, func, sample_size, p_train, p_test=None):

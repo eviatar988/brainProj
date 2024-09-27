@@ -61,15 +61,14 @@ def show_me_matrix(matrix_flat, name):
     plt.colorbar()
     plt.show()
 
-
 def readfile(task, patient, freq):
     task_dir_path = op.join(f'{task}_data' ,f'patient={patient}')
-    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},freq={freq},sec=3.npz'))
+    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},type={freq},sec=1.npz'))
     return data['matrix_arr']
 
 def readfile_plv(task, patient):
     task_dir_path = op.join(f'{task}_data', f'patient={patient}')
-    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},plv,sec=3.npz'))
+    data = np.load(op.join(task_dir_path, f'patient={patient},task={task},type=plv,sec=1.npz'))
     return data['matrix_arr']
 
 def get_bidsroot():
@@ -99,6 +98,32 @@ def rename_files_in_directory(directory):
                 os.rename(old_file_path, new_file_path)
 # Call the function on your directory
 def main():
+    # p_values_all = []
+    # for freq in freq_dict:
+    #     p_values = []
+    #     for i in range(45):
+    #         X_train, X_test, y_train, y_test = data_extracts.data_extract([i], data_extracts.raw_data, freq,1)
+    #         rest_data = np.concatenate((X_train[y_train==0], X_test[y_test==0]))
+    #         film_data = np.concatenate((X_train[y_train==1], X_test[y_test==1]))
+    #         rest_data = np.mean(rest_data, axis=0)
+    #         film_data = np.mean(film_data, axis=0)
+    #         stat, pvalue = stats.ttest_rel(rest_data, film_data)
+    #         p_values.append(pvalue)
+    #     p_values = np.array(p_values)
+    #     p_values_all.append(p_values)
+    # bars = []
+    # labels = []
+    # keys = list(freq_dict.keys())
+    # for i, p_values in enumerate(p_values_all):
+    #     bars.append(np.sum(p_values < 0.05))
+    #     bars.append(np.sum(p_values >= 0.05))
+    #     labels.append(f'{keys[i]}:success')
+    #     labels.append(f'{keys[i]}:failure')
+    # plt.figure(figsize=(15, 6))
+    # plt.ylabel('patients')
+    # plt.bar(labels, bars)
+    # plt.title(f'paired t-test success rate')
+    # plt.show()
     """accuracy1 = test2.majority_vote_cross_eval(3, ml_algorithms.svm_classifier,data_extracts.max_indices,
                                          1, np.arange(45))
     print(accuracy1)
@@ -106,24 +131,22 @@ def main():
                                          1, np.arange(45))
     print(accuracy2)"""
     # acc_al = []
-    # for freq in freq_dict.keys():
-    #     acc = test2.test_single_patient(ml_algorithms.svm_classifier, data_extracts.max_indices, freq,1
-    #                                     ,np.arange(45))
-    #     print(np.mean(acc))
-    #     acc_al.append(acc)
-    # 
-    # plt.figure(figsize=(10, 6))  # Optional: Adjust figure size
+    # acc = test2.test_single_patient_majority_vote(ml_algorithms.random_forest, data_extracts.max_indices,1
+    #                                     , np.arange(45))
     #
-    # plt.boxplot(acc_al, positions=[1, 2, 3, 4, 5, 6, 7])  # Positions for the groups
-    #
-    # # Optional: Add labels to x-axis
-    # plt.xticks([1, 2, 3, 4, 5, 6, 7], list(freq_dict.keys()))
-    # plt.xlabel('Data Type')
+    # sns.boxplot(data=acc)
+    # plt.title(f'Random Forest, single_patient, majority vote on coherence frequency values')
     # plt.ylabel('Accuracy')
-    # plt.title('Boxplot Of Accuracies for single patient case, Svm ')
-    # plt.grid(True)
-    print(test2.test_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices,'plv',
-                                         1, np.arange(45),np.arange(45)))
+    # plt.show()
+    acc = test2.test_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices_film,'high_gamma' ,1
+                                        , np.arange(45))
+    print(acc)
+    # sns.boxplot(data=acc)
+    # plt.title(f'SVM classifier, single_patient, PLV measurements')
+    # plt.ylabel('Accuracy')
+    # plt.show()
+    # print(test2.test_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices,'plv',
+    #                                      1, np.arange(45),np.arange(45)))
     # accuracy4 = np.zeros(45)
     # for i in range(5):
     #     print(i)
