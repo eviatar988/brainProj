@@ -106,8 +106,8 @@ def max_values_test(rest_path, film_path, rest_file, film_file):
     rest_temp = np.zeros((rest_data.shape[0], 100))
     film_temp = np.zeros((rest_data.shape[0], 100))
     for i in range(rest_data.shape[0]):
-        rest_temp[i, :] = np.concatenate((rest_data[i, rest_indices[i]],rest_data[i, rest_indices[i]]))
-        film_temp[i, :] = np.concatenate((film_data[i, film_indices[i]],film_data[i, film_indices[i]]))
+        rest_temp[i, :] = np.concatenate((rest_data[i, rest_indices[i]], rest_data[i, rest_indices[i]]))
+        film_temp[i, :] = np.concatenate((film_data[i, film_indices[i]], film_data[i, film_indices[i]]))
     X_train, X_test, y_train, y_test = data_split(rest_temp, film_temp)
     return X_train, X_test, y_train, y_test
 
@@ -374,3 +374,4 @@ def data_extract_2(freq_type_rest, freq_type_film, test_patients, extract_func):
         film_data_test = np.append(film_data_test, temp_film, axis=0)
 
     return rest_data_train, film_data_train, rest_data_test, film_data_test
+

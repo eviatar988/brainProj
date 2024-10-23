@@ -5,7 +5,8 @@ import pandas as pd
 import os
 import os.path as op
 
-import coherence_matrix
+import bids_extract
+import connectivity_matrix
 from tqdm import tqdm
 import threading
 
@@ -27,14 +28,14 @@ freq_dict = {
 class PatientsMatrix:
     # class which is used to create matrices for all patients in our data and save in a compressed file.
     #
-    def __init__(self, bids_root, sec_per_sample):
+    def __init__(self, dataset, sec_per_sample):
         self.sec_per_sample = int(sec_per_sample)
-        self.bids_root = bids_root
+        self.bids_root = bids_extract.get_bidsroot(dataset)
         self.all_film_matrix = []  # list of all the film matrix
         self.all_rest_matrix = []  # list of all the rest matrix
         self.patients = self.get_patients()
 
-    def get_patients(self): # get all the patients in the dataset
+    def get_patients(self):# get all the patients in the dataset
         patients_list = []
         participants_path = op.join(self.bids_root, 'participants.tsv')
 
@@ -48,13 +49,13 @@ class PatientsMatrix:
                 patients_list.append(str(i))
         return patients_list
 
-    def patient_thread_coherence(self,patient):
+    def patient_thread_coherence(self, patient):
         if not os.path.isdir(op.join(rest_data_path)):
             os.mkdir(op.join(rest_data_path))
         if not os.path.isdir(op.join(film_data_path)):
             os.mkdir(op.join(film_data_path))
-        task = coherence_matrix.coherence_calc
-        rest_matrix_list, film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient,
+        task = connectivity_matrix.coherence_calc
+        rest_matrix_list, film_matrix_list = connectivity_matrix.create_matrix_list(self.bids_root, patient,
                                                                                  self.sec_per_sample)
 
         if rest_matrix_list is None or film_matrix_list is None:
@@ -67,12 +68,14 @@ class PatientsMatrix:
         for key in freq_dict:
             rest_dir_path = op.join(rest_data_path, f'patient={patient}')
             film_dir_path = op.join(film_data_path, f'patient={patient}')
+
             if not os.path.isdir(rest_dir_path):
                 os.mkdir(rest_dir_path)
             if not os.path.isdir(film_dir_path):
                 os.mkdir(film_dir_path)
             lower_Bound = freq_dict[key][0]
             upper_Bound = freq_dict[key][1]
+
             np.savez(op.join(rest_dir_path, f'patient={patient},task=rest,freq={key},sec={signal_len}.npz'),
                      matrix_arr=np.mean(rest_matrix_list[:, :, lower_Bound:upper_Bound], axis=2), allow_pickle=True)
             np.savez(op.join(film_dir_path, f'patient={patient},task=film,freq={key},sec={signal_len}.npz'),
@@ -84,9 +87,9 @@ class PatientsMatrix:
             os.mkdir(op.join(rest_data_path))
         if not os.path.isdir(op.join(film_data_path)):
             os.mkdir(op.join(film_data_path))
-        rest_matrix_list, film_matrix_list = coherence_matrix.create_matrix_list(self.bids_root, patient,
-                                                                                 self.sec_per_sample, task=coherence_matrix.calculate_plv)
-
+        rest_matrix_list, film_matrix_list = connectivity_matrix.create_matrix_list(self.bids_root, patient,
+                                                                                 self.sec_per_sample,
+                                                                                task=connectivity_matrix.calculate_plv)
         if rest_matrix_list is None or film_matrix_list is None:
             print('No ecog samples for this patient')
             return
@@ -104,13 +107,13 @@ class PatientsMatrix:
                  matrix_arr=film_matrix_list, allow_pickle=True)
         print(patient, ' complete')
 
-    def save_matrix_to_file(self, measurement = 'coherence'):
+    def save_matrix_to_file(self, measurement='Coherence'):
 
         proc_arr = []
-        if measurement != 'coherence':
+        if measurement == 'PLV':
             for i in self.get_patients():
                 self.patient_thread_plv(i)
-        else:
+        if measurement == 'Coherence':
             for i in self.get_patients():
                 self.patient_thread_coherence(i)
 

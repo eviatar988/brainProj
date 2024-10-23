@@ -5,7 +5,7 @@ import mne_bids
 import scipy.stats
 import sklearn.metrics
 from mne.datasets import sample
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import cross_val_score
 
 import data_extracts
@@ -13,7 +13,7 @@ import ml_algorithms
 import patients_matrix
 import test2
 from patients_matrix import PatientsMatrix
-import coherence_matrix
+import connectivity_matrix
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import levene, gaussian_kde
@@ -48,7 +48,7 @@ def show_me_matrix(matrix_flat, name):
     matrix = np.zeros(shape=(matrix_len, matrix_len), dtype=float)
     index = 0
     for i in range(matrix_len):
-        for j in range(i,matrix_len):
+        for j in range(i, matrix_len):
             if i == j:
                 matrix[i, j] = 1
             else:
@@ -57,30 +57,28 @@ def show_me_matrix(matrix_flat, name):
                 index += 1
 
     plt.imshow(matrix, cmap='viridis')
-    plt.title(name)
+    plt.title(name, fontsize=30)
     plt.colorbar()
     plt.show()
+
 
 def readfile(task, patient, freq):
     task_dir_path = op.join(f'{task}_data' ,f'patient={patient}')
     data = np.load(op.join(task_dir_path, f'patient={patient},task={task},type={freq},sec=1.npz'))
     return data['matrix_arr']
 
+
 def readfile_plv(task, patient):
     task_dir_path = op.join(f'{task}_data', f'patient={patient}')
     data = np.load(op.join(task_dir_path, f'patient={patient},task={task},type=plv,sec=1.npz'))
     return data['matrix_arr']
 
-def get_bidsroot():
-    return op.join(op.dirname(sample.data_path()), dataset)
 
-
-def create_data(sec_per_sample, measurement):
-        bids_root = get_bidsroot()
-        patient_m = PatientsMatrix(bids_root, sec_per_sample)
+def create_data(dataset, sec_per_sample, measurement):
+        patient_m = PatientsMatrix(dataset, sec_per_sample)
         patient_m.save_matrix_to_file(measurement)
 
-
+create_data(dataset, 1, 'PLV')
 top_directory = 'C:\\Users\\Eyal Arad\\Documents\\GitHub\\brainProj\\rest_data'
 
 
@@ -98,6 +96,22 @@ def rename_files_in_directory(directory):
                 os.rename(old_file_path, new_file_path)
 # Call the function on your directory
 def main():
+    # rest = readfile_plv('rest', '02')
+    # show_me_matrix(rest[0] ,'PLV rest matrix')
+    # film = readfile_plv('film', '02')
+    # show_me_matrix(film[0],'PLV film matrix')
+    # Compute the confusion matrix
+    # y_test, y_pred = test2.test_all_patient_majority_vote(ml_algorithms.svm_classifier, data_extracts.max_indices,1
+    #                                      ,np.arange(45))
+    # cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+    # plt.figure(figsize=(8, 6))
+    # sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+    #             xticklabels=['Rest', 'Film'],
+    #             yticklabels=['Rest', 'Film'])
+    # plt.xlabel('Predicted Labels')
+    # plt.ylabel('True Labels')
+    # plt.title('Confusion Matrix')
+    # plt.show()
     # p_values_all = []
     # for freq in freq_dict:
     #     p_values = []
@@ -122,7 +136,8 @@ def main():
     # plt.figure(figsize=(15, 6))
     # plt.ylabel('patients')
     # plt.bar(labels, bars)
-    # plt.title(f'paired t-test success rate')
+    # plt.xticks(fontsize=10)
+    # plt.title(f'paired t-test success rate, for individual patients',fontsize=40)
     # plt.show()
     """accuracy1 = test2.majority_vote_cross_eval(3, ml_algorithms.svm_classifier,data_extracts.max_indices,
                                          1, np.arange(45))
@@ -137,16 +152,52 @@ def main():
     # sns.boxplot(data=acc)
     # plt.title(f'Random Forest, single_patient, majority vote on coherence frequency values')
     # plt.ylabel('Accuracy')
+    # acc_all = []
+    # for freq in freq_dict.keys():
+    #     acc = test2.test_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices,freq ,1
+    #                                       ,np.arange(45))
+    #     acc_all.append(acc)
+    #     print(acc)
+    # plt.plot(freq_dict.keys(), acc_all, marker='o', color='b', linestyle='-', markersize=8)
+    #
+    # # Add titles and labels
+    # plt.title('Model Accuracy for Different Measurements')
+    # plt.xlabel('Measurements')
+    # plt.ylabel('Accuracy')
+    # plt.ylim(0.75, 1.0)  # Set y-axis limits for clarity
+    #
+    # # Rotate the measurement labels if they are long
+    # plt.xticks(rotation=45)
+    #
+    # # Display the plot
+    # plt.tight_layout()  # Adjusts layout so labels are not cut off
     # plt.show()
-    acc = test2.test_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices_film,'high_gamma' ,1
-                                        , np.arange(45))
-    print(acc)
+    # acc = test2.test_single_patient(ml_algorithms.svm_classifier, data_extracts.max_func_indices,'plv',
+    #
+    #                             1, np.arange(45))
     # sns.boxplot(data=acc)
     # plt.title(f'SVM classifier, single_patient, PLV measurements')
     # plt.ylabel('Accuracy')
     # plt.show()
-    # print(test2.test_all_patients(ml_algorithms.svm_classifier, data_extracts.max_indices,'plv',
-    #                                      1, np.arange(45),np.arange(45)))
+    acc = test2.test_single_patient(ml_algorithms.random_forest, data_extracts.max_func_indices, 'plv',
+
+                                    1, np.arange(45))
+    sns.boxplot(data=acc)
+    plt.title(f'Random Forest, single_patient, PLV measurements')
+    plt.ylabel('Accuracy')
+    plt.show()
+    acc = test2.test_single_patient_majority_vote(ml_algorithms.svm_classifier, data_extracts.max_func_indices,
+                                    1, np.arange(45))
+    sns.boxplot(data=acc)
+    plt.title(f'SVM classifier, single_patient case, Coherence Majority vote')
+    plt.ylabel('Accuracy')
+    plt.show()
+    acc = test2.test_single_patient_majority_vote(ml_algorithms.random_forest, data_extracts.max_func_indices,
+                                    1, np.arange(45))
+    sns.boxplot(data=acc)
+    plt.title(f'Random Forest, single_patient case, Coherence Majority vote')
+    plt.ylabel('Accuracy')
+    plt.show()
     # accuracy4 = np.zeros(45)
     # for i in range(5):
     #     print(i)

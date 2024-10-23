@@ -13,7 +13,7 @@ import ml_algorithms
 import patients_matrix
 import test2
 from patients_matrix import PatientsMatrix
-import coherence_matrix
+import connectivity_matrix
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import levene, gaussian_kde
@@ -144,7 +144,7 @@ plt.title('Boxplot Of Accuracies for single patient case,Random Forest')
 plt.grid(True)
 
 plt.show()
-
+2, 3
 acc = test1.pred_all_frequencys(ml_algorithms.svm_classifier, data_extracts.max_diffrence_indices)
 print(np.mean(acc))
 sns.boxplot(acc)

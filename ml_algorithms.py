@@ -8,7 +8,7 @@ from sklearn.svm import SVC
 
 import data_extracts
 from patients_matrix import PatientsMatrix
-import coherence_matrix
+import connectivity_matrix
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import levene, gaussian_kde
@@ -62,7 +62,7 @@ def random_forest(x_train, y_train):
     # create random forest model and train in on the data, return the trained model
     # x_train : nparray ,array that contains all the data
     # y_train : int[] ,array that contains the labels of the data
-    model = RandomForestClassifier(n_estimators=100, max_depth=2)
+    model = RandomForestClassifier(n_estimators=100, max_depth=3)
     model.fit(x_train, y_train)
     return model
 
