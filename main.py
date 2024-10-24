@@ -8,7 +8,7 @@ from mne.datasets import sample
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import cross_val_score
 
-import data_extracts
+import data_methods
 import ml_algorithms
 import patients_matrix
 import test2

@@ -2,13 +2,15 @@ import math
 import os
 import os.path as op
 import mne_bids
+import pandas as pd
 import scipy.stats
 import sklearn.metrics
 from mne.datasets import sample
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score
 
-import data_extracts
+import bids_extract
+import data_methods
 import ml_algorithms
 import patients_matrix
 import test2
@@ -151,7 +153,11 @@ sns.boxplot(acc)
 plt.show()
 """
 
+participants_path = op.join(bids_extract.get_bidsroot, 'participants.tsv')
 
+        # read participants.tsv file
+participants = pd.read_csv(participants_path, sep='\t')
+print(participants)
 def calculate_plv(signal1, signal2):
     """
     Calculate the Phase-Locking Value (PLV) between two signals.

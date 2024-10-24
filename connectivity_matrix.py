@@ -67,7 +67,7 @@ def create_matrix(channels, sfreq, signal_len, task=coherence_calc):
 
 
 
-def create_matrix_list(bids_root: str, sub_tag: str, signal_len, task=coherence_calc):
+def create_matrix_list(bids_root: str, sub_tag: str, signal_len, method=coherence_calc):
     bids_path_rest = bids_extract.get_bids_path(bids_root, sub_tag, 'rest')
     bids_path_film = bids_extract.get_bids_path(bids_root, sub_tag, 'film')
     rest_channels, film_channels, rest_sfreq, film_sfreq = bids_extract.handle_channels(bids_path_rest, bids_path_film)
@@ -82,7 +82,7 @@ def create_matrix_list(bids_root: str, sub_tag: str, signal_len, task=coherence_
         lower_bound = signal_len * sec * rest_sfreq
         upper_bound = (signal_len*sec + signal_len) * rest_sfreq
         matrix_list_rest.append(
-            create_matrix(rest_channels[:, lower_bound:upper_bound], rest_sfreq, signal_len, task))
+            create_matrix(rest_channels[:, lower_bound:upper_bound], rest_sfreq, signal_len, method))
 
     time = int(len(film_channels[0])) / film_sfreq
     time = time/signal_len
@@ -92,7 +92,7 @@ def create_matrix_list(bids_root: str, sub_tag: str, signal_len, task=coherence_
         lower_bound = signal_len * sec * film_sfreq
         upper_bound = (signal_len * sec + signal_len) * film_sfreq
         matrix_list_film.append(
-            create_matrix(film_channels[:, lower_bound:upper_bound], film_sfreq, signal_len, task))
+            create_matrix(film_channels[:, lower_bound:upper_bound], film_sfreq, signal_len, method))
     return matrix_list_rest, matrix_list_film
 
 

@@ -15,7 +15,7 @@ subject = '10'
 
 
 # Download one subject's data from each dataset
-def download_data(dataset, subject=None):
+def download_data_openneuro(dataset, subject=None):
     bids_root = op.join(op.dirname(sample.data_path()), dataset)
     if not op.isdir(bids_root):
         os.makedirs(bids_root)

@@ -88,6 +88,7 @@ def handle_channels(bids_rest, bids_film):
     raw_rest.notch_filter(np.arange(50, 251, 50))
     raw_rest.set_eeg_reference()
     sfreq_rest = raw_rest.info['sfreq']
+
     raw_film.load_data()
     raw_film.notch_filter(np.arange(50, 251, 50))
     raw_film.set_eeg_reference()

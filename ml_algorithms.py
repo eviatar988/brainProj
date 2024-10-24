@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-import data_extracts
+import data_methods
 from patients_matrix import PatientsMatrix
 import connectivity_matrix
 from matplotlib import pyplot as plt

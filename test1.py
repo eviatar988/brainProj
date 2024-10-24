@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
 import ml_algorithms
-import data_extracts
+import data_methods
 
 freq_dict = {
     'delta': (1, 3),

@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
 import ml_algorithms
-import data_extracts
+import data_methods
 
 freq_array = ['delta', 'theta', 'alpha', 'beta', 'low_gamma', 'high_gamma']
 func_dict = {

@@ -64,11 +64,10 @@ def normalize_array_of_vectors(array_of_vectors):
     return np.array([normalize_vector(v) for v in array_of_vectors])
 
 
-def max_values(rest_path, film_path, rest_file, film_file):
+def max_values(rest_data, film_data):
     '''
     return the 100 max values for each second in the rest and film data
     '''
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_indices = np.sort(np.argsort(rest_data, axis=1)[:, -50:], axis=1)
     film_indices = np.sort(np.argsort(film_data, axis=1)[:, -50:], axis=1)
     rest_temp = np.zeros((rest_data.shape[0], 50))
@@ -80,13 +79,12 @@ def max_values(rest_path, film_path, rest_file, film_file):
     return X_train, X_test, y_train, y_test
 
 
-def max_indices_mean(rest_path, film_path, rest_file, film_file):
+def max_indices_mean(rest_data, film_data):
     '''
     create a mean matrix from rest and film data for single patient
     choose the 100 max indices from the mean matrix
     return arrys with the values in those indices for each second
     '''
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
     rest_data = X_train[np.where(y_train == 0)[0]]
     film_data = X_train[np.where(y_train == 1)[0]]
@@ -96,11 +94,10 @@ def max_indices_mean(rest_path, film_path, rest_file, film_file):
     indices = np.argsort(mean_matrix)[-100:]
     return X_train[:, indices], X_test[:, indices], y_train, y_test
 
-def max_values_test(rest_path, film_path, rest_file, film_file):
+def max_values_test(rest_data, film_data):
     '''
     return the 100 max values for each second in the rest and film data
     '''
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     rest_indices = np.sort(np.argsort(rest_data, axis=1)[:, -50:], axis=1)
     film_indices = np.sort(np.argsort(film_data, axis=1)[:, -50:], axis=1)
     rest_temp = np.zeros((rest_data.shape[0], 100))
@@ -112,14 +109,12 @@ def max_values_test(rest_path, film_path, rest_file, film_file):
     return X_train, X_test, y_train, y_test
 
 # returning the indices with the most difference between film and rest
-def max_func_indices(rest_path, film_path, rest_file, film_file):
+def max_func_indices(rest_data, film_data):
     '''
     create a mean matrix from rest and film data for single patient
     choose the 100 indices with the most difference between the rest and film data
     return arrys with the values in those indices for each second
-    
     '''
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
     rest_data = X_train[np.where(y_train == 0)[0]]
     film_data = X_train[np.where(y_train == 1)[0]]
@@ -137,13 +132,12 @@ def max_func_indices(rest_path, film_path, rest_file, film_file):
 
 
 # calculate the max indices of the mean of rest and film data, return the data in those indices
-def max_indices(rest_path, film_path, rest_file, film_file):
+def max_indices(rest_data, film_data):
     '''
     creat mean matrix for each rest and film data for single patient 
     find the 50 max indices in each mean matrix (50 from rest and 50 from film)
     return arrys with the values in those indices for each second
     '''
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
     rest_data = X_train[np.where(y_train == 0)[0]]
     film_data = X_train[np.where(y_train == 1)[0]]
@@ -217,11 +211,10 @@ def matrix_fit(rest_path, film_path, rest_file, film_file):
     return rest_data, film_data"""
 
 
-def max_indices_film(rest_path, film_path, rest_file, film_file):
+def max_indices_film(rest_data, film_data):
     '''
     return data only in film indices (for rest and film)
     '''
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
     film_data = X_train[np.where(y_train == 1)[0]]
     film_mean = np.mean(film_data, axis=0)
@@ -229,13 +222,12 @@ def max_indices_film(rest_path, film_path, rest_file, film_file):
     return X_train[:, film_indices], X_test[:, film_indices], y_train, y_test
 
 
-def max_indices_rest(rest_path, film_path, rest_file, film_file):
+def max_indices_rest(rest_data, film_data):
     '''
     creat mean matrix for each rest and film data for single patient 
     find the 50 max indices in each mean matrix (50 from rest and 50 from film)
     return arrys with the values in those indices for each second
     '''
-    rest_data, film_data = data_fit(rest_path, film_path, rest_file, film_file)
     X_train, X_test, y_train, y_test = data_split(rest_data, film_data)
     rest_data = X_train[np.where(y_train == 0)[0]]
     rest_mean = np.mean(rest_data, axis=0)
@@ -272,8 +264,8 @@ def data_extract(bounds, extract_func, data_type, sample_size):
 
     rest_file = f'{patients[first_p]},task=rest,type={data_type},sec={sample_size}.npz'
     film_file = f'{patients[first_p]},task=film,type={data_type},sec={sample_size}.npz'
-
-    x_train, x_test, y_train, y_test = extract_func(rest_dict, film_dict, rest_file, film_file)
+    rest_data, film_data = data_fit(rest_dict, film_dict, rest_file, film_file)
+    x_train, x_test, y_train, y_test = extract_func(rest_data, film_data)
 
     for i in bounds[1:]:
         rest_dict = op.join(rest_path, patients[i])
@@ -281,7 +273,8 @@ def data_extract(bounds, extract_func, data_type, sample_size):
 
         rest_file = f'{patients[i]},task=rest,type={data_type},sec={sample_size}.npz'
         film_file = f'{patients[i]},task=film,type={data_type},sec={sample_size}.npz'
-        x_train_t, x_test_t, y_train_t, y_test_t = extract_func(rest_dict, film_dict, rest_file, film_file)
+        rest_data, film_data = data_fit(rest_dict, film_dict, rest_file, film_file)
+        x_train_t, x_test_t, y_train_t, y_test_t = extract_func(rest_data, film_data)
 
         x_train = np.append(x_train, x_train_t, axis=0)
         x_test = np.append(x_test, x_test_t, axis=0)
